@@ -171,7 +171,7 @@
 <div class="starfield"></div>
 
 <!-- ============== 1. TOP 5 賽車領獎台（最上面、最大）============== -->
-<section style="position: relative; z-index: 2; padding: 40px 20px 30px; max-width: 1200px; margin: 0 auto; border-bottom: 2px solid rgba(168,85,247,0.3);">
+<section id="podiumSection" style="position: relative; z-index: 2; padding: 40px 20px 30px; max-width: 1200px; margin: 0 auto; border-bottom: 2px solid rgba(168,85,247,0.3); display: none;">
   <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom: 14px;">
     <span style="width:14px; height:14px; background:var(--red); border-radius:50%; box-shadow:0 0 14px var(--red); animation:livePulse 1.5s ease-in-out infinite;"></span>
     <span id="podiumTitle" style="font-family:'Orbitron',sans-serif; font-weight:900; font-size:30px; color:var(--gold); text-shadow: 0 0 20px rgba(253,224,71,0.5);">🔒 本週排行榜尚未公布</span>
@@ -194,7 +194,7 @@
 </section>
 
 <!-- ============== 3. 即時全員進度（軌道）============== -->
-<section style="position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 30px 20px;">
+<section id="liveSection" style="position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 30px 20px; display: none;">
   <div class="live-header">
     <span class="live-dot"></span>
     <span class="live-title">🛸 即時全員進度</span>
@@ -240,6 +240,11 @@
 (async () => {
   // 從雲端載入資料
   try { await KPI.init(); } catch (e) { console.error('載入失敗', e); }
+
+  // ===== 登入狀態：沒登入則隱藏 Top 5 與全員進度 =====
+  const isLoggedIn = !!KPI.currentUser();
+  document.getElementById('podiumSection').style.display = isLoggedIn ? 'block' : 'none';
+  document.getElementById('liveSection').style.display = isLoggedIn ? 'block' : 'none';
 
   // ===== 渲染即時統計 =====
   function renderStats() {
