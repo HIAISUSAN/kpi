@@ -873,6 +873,10 @@
     const u = KPI.getUser(uid);
     if (!u) return;
     const detail = document.getElementById('raceDetail');
+    // 保留現有輸入內容（如果存在）
+    const oldInp = document.getElementById('detailCmtInput');
+    const savedText = oldInp ? oldInp.value : '';
+    const wasFocused = oldInp && document.activeElement === oldInp;
     detail.classList.add('show');
     detail.dataset.uid = uid;
     const liked = KPI.hasLiked(me.id, uid);
@@ -929,6 +933,14 @@
       }
     };
     const inp = document.getElementById('detailCmtInput');
+    // 還原使用者剛才打到一半的內容
+    if (savedText) inp.value = savedText;
+    if (wasFocused) {
+      inp.focus();
+      // 把游標移到文末
+      const len = inp.value.length;
+      inp.setSelectionRange(len, len);
+    }
     inp.addEventListener('keypress', e => {
       if (e.key === 'Enter') {
         detail.querySelector('button[data-detail-act="send"]').click();
@@ -1023,6 +1035,11 @@
 
   // 每 10 秒從雲端 refresh + 重新渲染（看到其他人的更新）
   setInterval(async () => {
+    // 使用者正在打字 → 跳過本次刷新（避免吃掉留言）
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') && active.value) {
+      return;
+    }
     try { await KPI.refresh(); } catch (e) { console.warn('refresh failed', e); }
     me = KPI.getUser(me.id);
     if (!me) { KPI.logout(); window.location.href = 'login.html'; return; }
