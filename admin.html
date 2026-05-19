@@ -567,11 +567,12 @@
     document.getElementById('announceOverlay').classList.remove('show');
   };
 
-  // 每 10 秒從雲端 refresh
+  // 每 60 秒從雲端 refresh（控制 Supabase 流量）
   setInterval(async () => {
+    if (document.hidden) return;
     try { await KPI.refresh(); refreshAll(); }
     catch (e) { console.warn('refresh failed', e); }
-  }, 10000);
+  }, 60000);
 })();
 </script>
 </body>

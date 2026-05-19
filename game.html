@@ -1048,13 +1048,15 @@
     setTimeout(() => showToast('🎉 歡迎加入 KPI 宇宙樂園！'), 300);
   }
 
-  // 每 10 秒從雲端 refresh + 重新渲染（看到其他人的更新）
+  // 每 60 秒從雲端 refresh + 重新渲染（控制 Supabase 流量）
   setInterval(async () => {
     // 使用者正在打字 → 跳過本次刷新（避免吃掉留言）
     const active = document.activeElement;
     if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') && active.value) {
       return;
     }
+    // 分頁切到背景時不刷新（省流量）
+    if (document.hidden) return;
     try { await KPI.refresh(); } catch (e) { console.warn('refresh failed', e); }
     const fresh = KPI.getUser(me.id);
     if (fresh) {
