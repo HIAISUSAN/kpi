@@ -397,12 +397,14 @@
   // ===== 渲染 Top 5 賽車領獎台 =====
   function renderTop5() {
     const announced = KPI.getSettings().lastAnnouncement;
+    // 只有「本週」公告才算（新週開始自動清空）
+    const announcedThisWeek = announced && KPI.weekId(new Date(announced)) === KPI.weekId();
     const titleEl = document.getElementById('podiumTitle');
     const subEl = document.getElementById('podiumSub');
     const box = document.getElementById('homePodium');
 
-    // 還沒公布 → 隱藏排行榜，顯示等候提示
-    if (!announced) {
+    // 本週還沒公布 → 隱藏排行榜，顯示等候提示
+    if (!announcedThisWeek) {
       if (titleEl) titleEl.textContent = '🔒 本週排行榜尚未公布';
       if (subEl) subEl.textContent = 'Susan 將於每週二晚 19:00 結算 + 公布 ⏰';
       box.innerHTML = `<div style="text-align:center; color:var(--text-dim); padding:50px 20px; width:100%; line-height:1.8;">

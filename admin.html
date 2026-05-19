@@ -161,13 +161,20 @@
 
   <div class="admin-grid">
 
-    <!-- 寶座 + 公布 -->
+    <!-- 寶座 + 公告 -->
     <div class="card panel">
-      <h2>👑 本週寶座（每週二公布用）</h2>
-      <p style="color: var(--text-dim); font-size: 13px;">每週二 08:00 系統會在 Discord <code>#KPI</code> 提醒你選人。從下方挑一位本週寶座，週二晚上按「📢 公布」全員看到動畫。</p>
-      <div class="throne-pick" id="thronePick" style="margin: 14px 0;"></div>
+      <h2>👑 本週寶座 + 公告</h2>
+      <p style="color: var(--text-dim); font-size: 13px;">每週二 19:00 由你按下「📢 公告」→ 動畫公布 + 排行榜在首頁出現。下週三開始會自動清空，等你下次公告。</p>
+
+      <!-- 公告狀態指示 -->
+      <div id="announceStatus" style="margin: 12px 0; padding: 10px 14px; border-radius: 10px; font-size: 14px; text-align:center;"></div>
+
+      <div style="font-size:13px; color:var(--text-dim); margin-bottom:6px;">挑本週寶座（從下方點一位）：</div>
+      <div class="throne-pick" id="thronePick" style="margin: 6px 0;"></div>
       <div id="thronePicked" style="margin: 10px 0; font-size: 14px;"></div>
-      <button class="btn btn-primary" id="announceBtn" style="width:100%;">📢 公布本週成績（觸發動畫）</button>
+
+      <button class="btn btn-primary" id="announceBtn" style="width:100%; margin-bottom: 8px;">📢 公告本週排行榜（觸發動畫）</button>
+      <button class="btn btn-secondary" id="unannounceBtn" style="width:100%; padding:8px; font-size:13px;">🔒 取消公告（隱藏排行榜）</button>
     </div>
 
     <!-- 團隊密碼 -->
@@ -399,14 +406,48 @@
     box.innerHTML = html;
   }
 
+  function refreshAnnounceStatus() {
+    const announced = KPI.getSettings().lastAnnouncement;
+    const announcedThisWeek = announced && KPI.weekId(new Date(announced)) === KPI.weekId();
+    const el = document.getElementById('announceStatus');
+    if (!el) return;
+    if (announcedThisWeek) {
+      const d = new Date(announced);
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const day = String(d.getDate()).padStart(2,'0');
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      el.style.background = 'rgba(52,211,153,0.15)';
+      el.style.border = '1px solid var(--green)';
+      el.style.color = 'var(--green)';
+      el.innerHTML = `✅ <strong>本週已公告</strong>（${m}/${day} ${hh}:${mm}）`;
+    } else {
+      el.style.background = 'rgba(251,146,60,0.15)';
+      el.style.border = '1px solid var(--orange)';
+      el.style.color = 'var(--orange)';
+      el.innerHTML = `🔒 <strong>本週尚未公告</strong> · 排行榜首頁是空的，等你按下方「📢 公告」`;
+    }
+  }
+
   function refreshAll() {
     refreshStats();
     refreshUsers();
     refreshThronePick();
     refreshSettings();
     refreshWeekTable();
+    refreshAnnounceStatus();
   }
   refreshAll();
+
+  // 取消公告
+  document.getElementById('unannounceBtn').onclick = async () => {
+    if (!confirm('確定取消公告？首頁排行榜會隱藏起來。')) return;
+    try {
+      await KPI.setSettings({ lastAnnouncement: null });
+      refreshAll();
+      alert('✅ 已取消公告，首頁排行榜隱藏');
+    } catch (err) { alert('失敗：' + err.message); }
+  };
 
   // 後台帳密
   document.getElementById('saveAdminCred').onclick = async () => {
