@@ -155,8 +155,9 @@ const KPI = (() => {
   function weekId(d = new Date()) {
     const tmp = new Date(d);
     const day = tmp.getDay();
-    const offsetToTue = (day - 2 + 7) % 7;
-    tmp.setDate(tmp.getDate() - offsetToTue);
+    // 週三起算（day=3 為週三）→ 週二為週末結算日
+    const offsetToWed = (day - 3 + 7) % 7;
+    tmp.setDate(tmp.getDate() - offsetToWed);
     return tmp.toISOString().slice(0, 10);
   }
 
