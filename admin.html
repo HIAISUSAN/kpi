@@ -189,6 +189,23 @@
       <div id="settleResult" style="margin-top:12px; font-size:13px;"></div>
     </div>
 
+    <!-- Susan 後台帳密 -->
+    <div class="card panel">
+      <h2>🔐 後台登入帳密</h2>
+      <p style="color: var(--text-dim); font-size: 13px;">只有你能用這組 email + 密碼進後台。記得改成只有你自己知道的。</p>
+      <div class="field" style="margin-top:10px;">
+        <label>Email</label>
+        <input type="email" id="adminEmailNew" placeholder="email@example.com">
+      </div>
+      <div class="field">
+        <label>密碼（建議 8 位以上）</label>
+        <input type="password" id="adminPwdNew" placeholder="留空 = 不改密碼">
+      </div>
+      <button class="btn btn-success" id="saveAdminCred" style="width:100%;">💾 儲存後台帳密</button>
+      <div style="margin-top:8px; font-size:12px; color:var(--text-dim);">目前 Email：<code id="currentAdminEmail" style="color:var(--gold);"></code></div>
+      <button class="btn btn-secondary" id="adminLogoutBtn" style="margin-top:10px; width:100%; padding:8px;">🚪 登出後台</button>
+    </div>
+
     <!-- 危險操作 -->
     <div class="card panel">
       <h2>🧪 開發測試</h2>
@@ -242,6 +259,12 @@
 <script src="assets/stars.js"></script>
 <script>
 (async () => {
+  // 沒有 admin session → 跳回首頁
+  if (sessionStorage.getItem('kpi.admin') !== '1') {
+    alert('請先從首頁左下「後台」登入 🔐');
+    window.location.href = 'index.html';
+    return;
+  }
   try { await KPI.init(); } catch (e) {
     document.body.innerHTML = '<div style="padding:40px;text-align:center;color:white;">⚠️ 連不到雲端資料庫，請重新整理或檢查網路</div>';
     return;
@@ -345,7 +368,12 @@
   }
 
   function refreshSettings() {
-    document.getElementById('currentPass').textContent = KPI.getSettings().teamPassword;
+    const s = KPI.getSettings();
+    document.getElementById('currentPass').textContent = s.teamPassword;
+    const el = document.getElementById('currentAdminEmail');
+    if (el) el.textContent = s.adminEmail;
+    const emailField = document.getElementById('adminEmailNew');
+    if (emailField && !emailField.value) emailField.value = s.adminEmail;
   }
 
   function refreshWeekTable() {
@@ -379,6 +407,30 @@
     refreshWeekTable();
   }
   refreshAll();
+
+  // 後台帳密
+  document.getElementById('saveAdminCred').onclick = async () => {
+    const email = document.getElementById('adminEmailNew').value.trim();
+    const pwd = document.getElementById('adminPwdNew').value;
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return alert('Email 格式錯誤');
+    try {
+      const patch = { adminEmail: email };
+      if (pwd) {
+        if (pwd.length < 4) return alert('密碼至少 4 位（建議 8 位以上）');
+        patch.adminPassword = pwd;
+      }
+      await KPI.setSettings(patch);
+      document.getElementById('adminPwdNew').value = '';
+      refreshSettings();
+      alert('已更新 ✅' + (pwd ? '（密碼也已更新）' : ''));
+    } catch (err) { alert('儲存失敗：' + err.message); }
+  };
+
+  // 登出後台
+  document.getElementById('adminLogoutBtn').onclick = () => {
+    sessionStorage.removeItem('kpi.admin');
+    window.location.href = 'index.html';
+  };
 
   // 團隊密碼
   document.getElementById('savePass').onclick = async () => {

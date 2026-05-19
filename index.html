@@ -234,6 +234,31 @@
   <div class="tagline" style="margin-top: 40px;">『 留下來的，才有資格被放大 』</div>
 </section>
 
+<!-- 🔐 後台入口（左下角小字）-->
+<a href="#" id="adminEntry" style="position:fixed; left:14px; bottom:12px; z-index:100; color:rgba(160,170,200,0.4); font-size:11px; text-decoration:none; padding:6px 10px; border-radius:6px; transition:all 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='rgba(160,170,200,0.4)'">後台</a>
+
+<!-- 🔐 後台登入彈窗 -->
+<div id="adminModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+  <div class="card" style="width:90%; max-width:420px; padding:32px;">
+    <div style="text-align:center; margin-bottom:6px; font-size:48px;">🔧</div>
+    <div style="text-align:center; font-family:'Orbitron',sans-serif; font-weight:800; font-size:22px; color:var(--gold); margin-bottom:6px;">Susan 後台登入</div>
+    <div style="text-align:center; color:var(--text-dim); font-size:13px; margin-bottom:18px;">僅限管理者使用</div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="adminEmail" placeholder="email@example.com" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>密碼</label>
+      <input type="password" id="adminPwd" placeholder="密碼" autocomplete="off">
+    </div>
+    <div id="adminErr" style="color:#fca5a5; font-size:13px; margin-bottom:10px; display:none;">Email 或密碼錯誤</div>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn btn-secondary" id="adminCancel" style="flex:0 0 auto; padding:10px 18px;">取消</button>
+      <button class="btn btn-primary" id="adminSubmit" style="flex:1;">登入 →</button>
+    </div>
+  </div>
+</div>
+
 <!-- 🔐 團隊密碼彈窗 -->
 <div id="gateModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
   <div class="card" style="width:90%; max-width:420px; padding:32px;">
@@ -294,6 +319,36 @@
   document.getElementById('gateSubmit').onclick = submitGate;
   gatePass.addEventListener('keypress', e => { if (e.key === 'Enter') submitGate(); });
   gateModal.addEventListener('click', e => { if (e.target === gateModal) closeGate(); });
+
+  // ===== Susan 後台登入 =====
+  const adminModal = document.getElementById('adminModal');
+  const adminEmailEl = document.getElementById('adminEmail');
+  const adminPwdEl = document.getElementById('adminPwd');
+  const adminErr = document.getElementById('adminErr');
+  document.getElementById('adminEntry').onclick = (e) => {
+    e.preventDefault();
+    adminEmailEl.value = '';
+    adminPwdEl.value = '';
+    adminErr.style.display = 'none';
+    adminModal.style.display = 'flex';
+    setTimeout(() => adminEmailEl.focus(), 100);
+  };
+  document.getElementById('adminCancel').onclick = () => { adminModal.style.display = 'none'; };
+  adminModal.addEventListener('click', e => { if (e.target === adminModal) adminModal.style.display = 'none'; });
+  function submitAdmin() {
+    const s = KPI.getSettings();
+    const email = adminEmailEl.value.trim().toLowerCase();
+    const pwd = adminPwdEl.value;
+    if (email === s.adminEmail.toLowerCase() && pwd === s.adminPassword) {
+      sessionStorage.setItem('kpi.admin', '1');
+      window.location.href = 'admin.html';
+    } else {
+      adminErr.style.display = 'block';
+    }
+  }
+  document.getElementById('adminSubmit').onclick = submitAdmin;
+  adminPwdEl.addEventListener('keypress', e => { if (e.key === 'Enter') submitAdmin(); });
+  adminEmailEl.addEventListener('keypress', e => { if (e.key === 'Enter') adminPwdEl.focus(); });
 
   // ===== 渲染即時統計 =====
   function renderStats() {

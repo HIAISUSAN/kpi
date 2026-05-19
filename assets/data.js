@@ -184,11 +184,19 @@ const KPI = (() => {
       teamPassword: cache.settings.teamPassword || 'KPI2026',
       throneOfWeek: cache.settings.throneOfWeek || null,
       lastAnnouncement: cache.settings.lastAnnouncement || null,
+      adminEmail: cache.settings.adminEmail || 'FUXPIG@gmail.com',
+      adminPassword: cache.settings.adminPassword || '12345678',
     };
   }
   async function setSettings(patch) {
     for (const [k, v] of Object.entries(patch)) {
-      await _patch(`/settings?key=eq.${encodeURIComponent(k)}`, { value: v });
+      // 用 upsert 處理（新 key 或既有 key 都 OK）
+      const r = await fetch(REST + '/settings?on_conflict=key', {
+        method: 'POST',
+        headers: { ...HEADERS, Prefer: 'return=minimal,resolution=merge-duplicates' },
+        body: JSON.stringify({ key: k, value: v }),
+      });
+      if (!r.ok) throw new Error(`upsert setting ${k}: ${r.status} ${await r.text()}`);
       cache.settings[k] = v;
     }
   }
