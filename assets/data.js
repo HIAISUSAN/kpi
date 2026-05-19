@@ -162,31 +162,34 @@ const KPI = (() => {
   }
 
   // ========= 初始化：從 Supabase 抓所有資料到 cache =========
-  // 各 endpoint 獨立處理，一個失敗不影響其他
-  async function _safeGet(path, mapper, fallback) {
+  // 失敗時回傳 null（保留現有快取，不會清空）
+  async function _safeGet(path, mapper) {
     try {
       const data = await _get(path);
       return mapper ? data.map(mapper) : data;
     } catch (e) {
-      console.warn('載入失敗', path, e.message);
-      return fallback;
+      console.warn('載入失敗（保留舊資料）', path, e.message);
+      return null;
     }
   }
 
   async function init() {
     const [users, checkins, likes, comments, settings] = await Promise.all([
-      _safeGet('/users?select=*&order=created_at.asc', userFromDb, []),
-      _safeGet('/checkins?select=*', ciFromDb, []),
-      _safeGet('/likes?select=*', likeFromDb, []),
-      _safeGet('/comments?select=*&order=created_at.desc', cmtFromDb, []),
-      _safeGet('/settings?select=*', null, []),
+      _safeGet('/users?select=*&order=created_at.asc', userFromDb),
+      _safeGet('/checkins?select=*', ciFromDb),
+      _safeGet('/likes?select=*', likeFromDb),
+      _safeGet('/comments?select=*&order=created_at.desc', cmtFromDb),
+      _safeGet('/settings?select=*', null),
     ]);
-    cache.users = users;
-    cache.checkins = checkins;
-    cache.likes = likes;
-    cache.comments = comments;
-    cache.settings = {};
-    settings.forEach(s => { cache.settings[s.key] = s.value; });
+    // 只在拿到資料時才覆蓋快取（失敗時保留原本）
+    if (users !== null)    cache.users    = users;
+    if (checkins !== null) cache.checkins = checkins;
+    if (likes !== null)    cache.likes    = likes;
+    if (comments !== null) cache.comments = comments;
+    if (settings !== null) {
+      cache.settings = {};
+      settings.forEach(s => { cache.settings[s.key] = s.value; });
+    }
     cache.loaded = true;
   }
 
@@ -250,9 +253,16 @@ const KPI = (() => {
 
   // ========= Session（用 localStorage 存目前登入者） =========
   const SESSION_KEY = 'kpi.session';
-  async function login(name, password) {
-    const u = getUserByName(name);
-    if (!u) throw new Error('找不到此暱稱');
+  function getUserByEmail(email) {
+    if (!email) return null;
+    const e = email.trim().toLowerCase();
+    return cache.users.find(u => (u.email || '').toLowerCase() === e) || null;
+  }
+  async function login(identifier, password) {
+    // identifier 可以是 email 或暱稱
+    let u = getUserByEmail(identifier);
+    if (!u) u = getUserByName(identifier);
+    if (!u) throw new Error('找不到此 Email / 暱稱');
     if (u.banned) throw new Error('此帳號已停用');
     if (u.eliminated) throw new Error('此帳號已被黑洞吞噬 🕳️');
     if (u.password !== password) throw new Error('密碼錯誤');
@@ -508,7 +518,7 @@ const KPI = (() => {
     // settings
     getSettings, setSettings,
     // users
-    listUsers, getUser, getUserByName, addUser, updateUser, deleteUser,
+    listUsers, getUser, getUserByName, getUserByEmail, addUser, updateUser, deleteUser,
     // session
     login, currentUser, logout,
     // checkins

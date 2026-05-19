@@ -56,16 +56,11 @@
 <div class="login-wrap">
   <div class="card">
     <div class="login-title">👤 登入</div>
-    <div class="login-sub">選擇你的太空船並輸入密碼</div>
+    <div class="login-sub">輸入註冊時的 Email 和密碼</div>
 
     <div class="field">
-      <label>選擇你的太空船</label>
-      <div class="ship-pick">
-        <div class="ship-pick-img" id="shipImg">👽</div>
-        <select id="nameSel">
-          <option value="">-- 選擇你的暱稱 --</option>
-        </select>
-      </div>
+      <label>Email</label>
+      <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email" autofocus>
     </div>
 
     <div class="field">
@@ -87,9 +82,6 @@
     </div>
   </div>
 
-  <div style="text-align:center; margin-top:14px; font-size:12px; color: var(--text-dim);">
-    Demo 模式：使用 <code style="color:var(--gold);">demo</code> 即可登入示範帳號
-  </div>
 </div>
 
 <script src="assets/data.js"></script>
@@ -98,44 +90,37 @@
 (async () => {
   try { await KPI.init(); } catch (e) { console.error('載入失敗', e); }
 
-  const sel = document.getElementById('nameSel');
-  const img = document.getElementById('shipImg');
-  const users = KPI.listUsers();
-  users.forEach(u => {
-    const opt = document.createElement('option');
-    opt.value = u.id;
-    opt.textContent = u.name + (u.eliminated ? ' (已除名)' : u.banned ? ' (停用)' : '');
-    opt.disabled = u.eliminated || u.banned;
-    sel.appendChild(opt);
-  });
-
-  sel.onchange = () => {
-    const u = KPI.getUser(sel.value);
-    if (u && u.shipImage) { img.style.backgroundImage = `url(${u.shipImage})`; img.textContent = ''; }
-    else { img.style.backgroundImage = ''; img.textContent = '👽'; }
-  };
-
   // 如果已登入，直接跳轉
   if (KPI.currentUser()) {
     window.location.href = 'game.html';
+    return;
   }
+
+  const emailEl = document.getElementById('emailInput');
+  const pwdEl = document.getElementById('pwd');
 
   async function tryLogin() {
     const err = document.getElementById('err');
     err.style.display = 'none';
-    const u = KPI.getUser(sel.value);
-    const pwd = document.getElementById('pwd').value;
-    if (!u) { err.textContent = '請選擇你的暱稱'; err.style.display = 'block'; return; }
+    const email = emailEl.value.trim();
+    const pwd = pwdEl.value;
+    if (!email) { err.textContent = '請輸入 Email'; err.style.display = 'block'; return; }
+    if (!pwd) { err.textContent = '請輸入密碼'; err.style.display = 'block'; return; }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = '⏳ 登入中...';
     try {
-      await KPI.login(u.name, pwd);
+      await KPI.login(email, pwd);
       window.location.href = 'game.html';
     } catch (e) {
       err.textContent = e.message;
       err.style.display = 'block';
+      btn.disabled = false; btn.textContent = '🚀 進入駕駛艙';
     }
   }
   document.getElementById('loginBtn').onclick = tryLogin;
-  document.getElementById('pwd').addEventListener('keypress', e => { if (e.key === 'Enter') tryLogin(); });
+  emailEl.addEventListener('keypress', e => { if (e.key === 'Enter') pwdEl.focus(); });
+  pwdEl.addEventListener('keypress', e => { if (e.key === 'Enter') tryLogin(); });
 })();
 </script>
 </body>

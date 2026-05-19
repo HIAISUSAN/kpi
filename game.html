@@ -1056,8 +1056,14 @@
       return;
     }
     try { await KPI.refresh(); } catch (e) { console.warn('refresh failed', e); }
-    me = KPI.getUser(me.id);
-    if (!me) { KPI.logout(); window.location.href = 'login.html'; return; }
+    const fresh = KPI.getUser(me.id);
+    if (fresh) {
+      me = fresh;
+      // 只在帳號被停用/淘汰時踢出（其他情況保留 session 避免誤登出）
+      if (me.banned) { KPI.logout(); alert('你的帳號已被停用'); window.location.href = 'index.html'; return; }
+      if (me.eliminated) { KPI.logout(); alert('你的太空船被黑洞吞噬 🕳️'); window.location.href = 'index.html'; return; }
+    }
+    // 如果暫時抓不到 user（網路問題等），不要踢人，繼續用上次的 me
     renderUniverse(); renderMyStats(); renderRanking();
   }, 10000);
 })();
