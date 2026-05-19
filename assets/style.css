@@ -177,6 +177,16 @@ input, select, textarea {
   outline: none;
   transition: all 0.2s;
 }
+/* 下拉選單的選項：強制深底白字（不然 Windows 預設會白底白字看不到） */
+select option {
+  background: #1a0a3e;
+  color: #f0f4ff;
+  padding: 8px;
+  font-weight: 600;
+}
+select option:hover, select option:checked {
+  background: #4c1d95;
+}
 input:focus, select:focus, textarea:focus {
   border-color: var(--gold);
   background: rgba(0,0,0,0.6);
