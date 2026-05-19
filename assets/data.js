@@ -137,6 +137,7 @@ const KPI = (() => {
     '記憶方塊 Memo Cubee（欣宜）','Wynn Chen（雅雯）','［誤差值：0.5倍速生活］在施工暫停的日子裡（雅雯）','Stay Yuma｜嫚嫚慢慢變好（又嫚）',
     '娜沐沐 Namuu\'muu\'（佩珆）','全球教練咖啡館（文足）','歐洲管理驅動（文足）','Snail Ji（懿倫）',
     '藝點心生活（懿倫）','麵之友（展國）','Greg Chang（展國）',
+    '寶格。Coach Opal（佩勳）','Catherine Tuan（段維華）','不崩潰料理研究室（段維華）','8意藝術實驗室（段維華）',
   ].map((name, i) => ({ id: 'p' + (i + 1), name }));
   const GROUPS = [
     { id: 'A', name: 'A 組 美編', desc: '視覺設計、素材製作', countsBasic: true, inGame: true },
