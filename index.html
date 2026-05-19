@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPI 宇宙遊戲樂園 🎉</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .landing-hero {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .welcome-emoji {
+    font-size: 56px;
+    animation: bounce 2.5s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .main-title {
+    font-size: 44px;
+    margin: 14px 0 10px;
+    line-height: 1.2;
+    max-width: 900px;
+  }
+  .subtitle {
+    font-size: 20px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+  .btn-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 60px;
+  }
+  .feature-row {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 900px;
+  }
+  .feature {
+    flex: 0 0 220px;
+    text-align: center;
+  }
+  .feature-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .feature-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; color: var(--gold); }
+  .feature-desc { font-size: 14px; color: var(--text-dim); line-height: 1.5; }
+  .tagline {
+    margin-top: 50px;
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+  .preview-track {
+    width: 80%;
+    max-width: 720px;
+    margin: 40px auto 0;
+  }
+  .live-section {
+    width: 100%;
+    max-width: 1100px;
+    margin: 80px auto 0;
+    padding: 0 10px;
+  }
+  .live-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .live-dot {
+    width: 10px; height: 10px;
+    background: var(--red);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--red);
+    animation: livePulse 1.5s ease-in-out infinite;
+  }
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .live-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--gold);
+  }
+  .stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .stat-pill {
+    background: rgba(20, 10, 50, 0.7);
+    border: 1px solid rgba(168,85,247,0.4);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+  }
+  .stat-pill .num { font-size: 22px; margin-right: 6px; }
+  .stat-pill.green { border-color: var(--green); }
+  .stat-pill.orange { border-color: var(--orange); }
+  .stat-pill.red { border-color: var(--red); }
+  .top3 {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    gap: 16px;
+    margin: 30px 0 10px;
+  }
+  .top3-card {
+    text-align: center;
+    width: 100px;
+  }
+  .top3-card .ship-img {
+    width: 60px; height: 60px; border-radius: 50%;
+    background-size: cover; background-position: center;
+    margin: 0 auto 8px;
+    border: 3px solid;
+    box-shadow: 0 0 20px;
+  }
+  .top3-card .name { font-size: 13px; font-weight: 700; }
+  .top3-card .score { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .podium-bar {
+    margin-top: 6px;
+    border-radius: 8px 8px 0 0;
+    color: black;
+    font-weight: 900;
+    font-size: 14px;
+    padding: 6px 0;
+  }
+  .place-1 .podium-bar { height: 64px; background: linear-gradient(180deg, #fde047, #f59e0b); }
+  .place-2 .podium-bar { height: 44px; background: linear-gradient(180deg, #e5e7eb, #9ca3af); }
+  .place-3 .podium-bar { height: 30px; background: linear-gradient(180deg, #fbbf24, #b45309); }
+  .place-1 .ship-img { border-color: #fde047; box-shadow: 0 0 30px #fde047; }
+  .place-2 .ship-img { border-color: #e5e7eb; }
+  .place-3 .ship-img { border-color: #fbbf24; }
+  .empty-msg {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 30px;
+    font-size: 14px;
+  }
+  @media (max-width: 768px) {
+    .main-title { font-size: 36px; }
+    .subtitle { font-size: 16px; }
+    .welcome-emoji { font-size: 60px; }
+    .live-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="starfield"></div>
+
+<!-- ============== 1. TOP 5 賽車領獎台（最上面、最大）============== -->
+<section style="position: relative; z-index: 2; padding: 40px 20px 30px; max-width: 1200px; margin: 0 auto; border-bottom: 2px solid rgba(168,85,247,0.3);">
+  <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom: 14px;">
+    <span style="width:14px; height:14px; background:var(--red); border-radius:50%; box-shadow:0 0 14px var(--red); animation:livePulse 1.5s ease-in-out infinite;"></span>
+    <span style="font-family:'Orbitron',sans-serif; font-weight:900; font-size:30px; color:var(--gold); text-shadow: 0 0 20px rgba(253,224,71,0.5);">🏆 本週 Top 5 領獎台</span>
+  </div>
+  <div style="text-align:center; font-size:14px; color:var(--text-dim); margin-bottom: 14px;">本週前五名 · 第一名在中間 👑</div>
+  <div class="race-podium" id="homePodium" style="min-height: 240px;"></div>
+</section>
+
+<!-- ============== 2. 歡迎詞（變小、變短）============== -->
+<section style="position: relative; z-index: 2; text-align: center; padding: 30px 20px 10px;">
+  <div class="welcome-emoji">🎉🚀🌌</div>
+  <h1 class="main-title title-glow" style="margin: 12px auto;">歡迎來到 KPI 宇宙遊戲樂園</h1>
+  <p class="subtitle" style="margin: 8px auto 20px;">
+    駕駛你的太空船，從地球出發 🌍 完成任務飛向綠色宇宙 🟢
+  </p>
+  <div class="btn-row" style="margin-bottom: 0;">
+    <a href="register.html" class="btn btn-primary">🚀 進入遊戲</a>
+    <a href="login.html" class="btn btn-secondary">👤 我已有帳號</a>
+  </div>
+</section>
+
+<!-- ============== 3. 即時全員進度（軌道）============== -->
+<section style="position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 30px 20px;">
+  <div class="live-header">
+    <span class="live-dot"></span>
+    <span class="live-title">🛸 即時全員進度</span>
+  </div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="universe-track" id="liveTrack" style="height: 140px;">
+    <div class="zone-marker marker-universe">🌌</div>
+    <div class="zone-marker marker-earth">🌍</div>
+    <div class="zone-marker marker-red">🚨</div>
+    <div class="zone-marker marker-blackhole">🕳️</div>
+    <span class="zone-label zone-green">🟢 宇宙</span>
+    <span class="zone-label zone-earth">🟠 地球（起點）</span>
+    <span class="zone-label zone-red">🔴 紅燈區</span>
+    <span class="zone-label zone-blackhole">⚫ 黑洞</span>
+  </div>
+</section>
+
+<!-- ============== 4. 玩法說明 ============== -->
+<section style="position: relative; z-index: 2; max-width: 900px; margin: 0 auto; padding: 30px 20px;">
+  <div class="feature-row">
+    <div class="feature">
+      <span class="feature-icon">✅</span>
+      <div class="feature-title">每日打卡</div>
+      <div class="feature-desc">主帳號 1 則 + 夥伴帳號 3 則<br>達標得金幣 🪙、超標得蘋果 🍎</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">📊</span>
+      <div class="feature-title">每週分層</div>
+      <div class="feature-desc">綠 / 橘 / 紅<br>連續 3 紅 → 黑洞除名</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">👑</span>
+      <div class="feature-title">週寶座</div>
+      <div class="feature-desc">每週一晚總結公布<br>表現最佳者登上寶座</div>
+    </div>
+  </div>
+  <div class="tagline" style="margin-top: 40px;">『 留下來的，才有資格被放大 』</div>
+</section>
+
+<script src="assets/data.js"></script>
+<script src="assets/stars.js"></script>
+<script>
+(async () => {
+  // 從雲端載入資料
+  try { await KPI.init(); } catch (e) { console.error('載入失敗', e); }
+
+  // ===== 渲染即時統計 =====
+  function renderStats() {
+    const users = KPI.listUsers().filter(u => !u.eliminated && !u.banned);
+    let a = 0, b = 0, c = 0;
+    users.forEach(u => {
+      const t = KPI.tierOf(u.id);
+      if (t === 'A') a++;
+      else if (t === 'B') b++;
+      else if (t === 'C') c++;
+    });
+    const eliminated = KPI.listUsers().filter(u => u.eliminated).length;
+    document.getElementById('statsBar').innerHTML = `
+      <div class="stat-pill"><span class="num">${users.length}</span>戰隊成員</div>
+      <div class="stat-pill green"><span class="num" style="color:var(--green);">${a}</span>🟢 綠燈</div>
+      <div class="stat-pill orange"><span class="num" style="color:var(--orange);">${b}</span>🟠 橘燈</div>
+      <div class="stat-pill red"><span class="num" style="color:var(--red);">${c}</span>🔴 紅燈</div>
+      ${eliminated > 0 ? `<div class="stat-pill" style="border-color:#666;"><span class="num" style="color:#888;">${eliminated}</span>🕳️ 黑洞</div>` : ''}
+    `;
+  }
+
+  // ===== 渲染即時宇宙軌道 =====
+  function renderTrack() {
+    const track = document.getElementById('liveTrack');
+    track.querySelectorAll('.ship').forEach(s => s.remove());
+    const users = KPI.listUsers().filter(u => !u.eliminated);
+    if (!users.length) {
+      track.insertAdjacentHTML('beforeend', '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-dim);">尚無成員 · 等你來開航 🚀</div>');
+      return;
+    }
+    users.forEach(u => {
+      const tier = KPI.tierOf(u.id);
+      const ship = document.createElement('div');
+      ship.className = 'ship ship-tier-' + tier.toLowerCase();
+      ship.style.backgroundImage = `url(${u.shipImage})`;
+      ship.style.left = (KPI.shipPosition(u.id) * 100) + '%';
+      ship.title = u.name;
+      const lab = document.createElement('div');
+      lab.className = 'ship-label';
+      lab.textContent = u.name;
+      ship.appendChild(lab);
+      track.appendChild(ship);
+    });
+  }
+
+  // ===== 渲染 Top 5 賽車領獎台 =====
+  function renderTop5() {
+    const list = KPI.ranking().slice(0, 5);
+    const box = document.getElementById('homePodium');
+    if (!list.length) {
+      box.innerHTML = '<div style="text-align:center; color:var(--text-dim); padding:30px; width:100%;">本週還沒有人開始衝刺 ✨ 你會是第一名嗎？</div>';
+      return;
+    }
+    // 賽車排版：左→右 = 第 4、2、1、3、5 名（1 在中間）
+    const order = [3, 1, 0, 2, 4];
+    box.innerHTML = '';
+    order.forEach(idx => {
+      if (!list[idx]) return;
+      const u = list[idx];
+      const place = idx + 1;
+      const likeCount = KPI.listLikes(u.id).length;
+      const cmtCount = KPI.listComments(u.id).length;
+      const crown = place === 1 ? '👑' : place === 2 ? '🥈' : place === 3 ? '🥉' : '';
+      const card = document.createElement('div');
+      card.className = `race-card race-p${place}`;
+      card.innerHTML = `
+        <div class="crown">${crown}</div>
+        <div class="race-ship" style="background-image:url(${u.shipImage});"></div>
+        <div class="race-name">${u.name}</div>
+        <div class="race-score">🪙 ${u.coins||0} · 🍎 ${u.apples||0}</div>
+        <span class="race-likes">❤️ ${likeCount}</span>
+        <span class="race-cmt">💬 ${cmtCount}</span>
+        <div class="place-bar">${place}</div>`;
+      // 點卡片 → 引導去登入 / 進入遊戲
+      card.onclick = () => {
+        const me = KPI.currentUser();
+        window.location.href = me ? 'game.html' : 'login.html';
+      };
+      box.appendChild(card);
+    });
+  }
+
+  renderStats();
+  renderTrack();
+  renderTop5();
+
+  // 每 5 秒從雲端 refresh + 重新渲染
+  setInterval(async () => {
+    try { await KPI.refresh(); } catch (e) { console.warn('refresh failed', e); }
+    renderStats(); renderTrack(); renderTop5();
+  }, 5000);
+})();
+</script>
+</body>
+</html>

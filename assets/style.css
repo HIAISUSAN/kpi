@@ -1,0 +1,583 @@
+/* ========= KPI 宇宙遊戲樂園 共用樣式 ========= */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800;900&family=Orbitron:wght@600;800;900&display=swap');
+
+:root {
+  --bg-deep: #050018;
+  --bg-mid: #1a0a3e;
+  --bg-soft: #2a1b5e;
+  --green: #34d399;
+  --green-glow: #6ee7b7;
+  --orange: #fb923c;
+  --orange-glow: #fdba74;
+  --red: #ef4444;
+  --red-glow: #f87171;
+  --gold: #fde047;
+  --pink: #ec4899;
+  --purple: #a855f7;
+  --text: #f0f4ff;
+  --text-dim: #a5b4d4;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  background: radial-gradient(ellipse at top, #1a0a3e 0%, #050018 60%, #000 100%);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== 星空背景 ===== */
+.starfield {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--dur, 3s) ease-in-out infinite;
+  opacity: 0.8;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* 流星 */
+.shooting-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #fff, 0 0 12px #fff;
+  animation: shoot 8s linear infinite;
+  opacity: 0;
+}
+.shooting-star::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, white, transparent);
+  transform: translateX(-120px);
+}
+@keyframes shoot {
+  0% { transform: translate(0, 0); opacity: 0; }
+  5% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translate(-500px, 500px); opacity: 0; }
+}
+
+/* 漂浮星球 */
+.planet {
+  position: absolute;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 20px currentColor);
+  animation: float 8s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(10deg); }
+}
+
+/* ===== 主標題（霓虹發光） ===== */
+.title-glow {
+  font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
+  font-weight: 900;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #fde047, #fb923c, #ec4899, #a855f7, #34d399);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s ease infinite;
+  text-shadow: 0 0 40px rgba(168, 85, 247, 0.5);
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ===== 按鈕 ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-decoration: none;
+  font-family: inherit;
+  color: white;
+  letter-spacing: 1px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #f59e0b, #ec4899, #a855f7);
+  box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(236, 72, 153, 0.6);
+}
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.6);
+  transform: translateY(-2px);
+}
+.btn-success {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  box-shadow: 0 10px 30px rgba(52, 211, 153, 0.4);
+}
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+}
+
+/* ===== 卡片 ===== */
+.card {
+  background: rgba(20, 10, 50, 0.65);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ===== 表單 ===== */
+input, select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.4);
+  border: 2px solid rgba(168, 85, 247, 0.4);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  background: rgba(0,0,0,0.6);
+  box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.2);
+}
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ===== 太空船軌道（universe line） ===== */
+.universe-track {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  margin: 30px 0;
+  background: linear-gradient(90deg,
+    rgba(52, 211, 153, 0.25) 0%,
+    rgba(52, 211, 153, 0.15) 25%,
+    rgba(251, 146, 60, 0.20) 50%,
+    rgba(239, 68, 68, 0.20) 75%,
+    rgba(0, 0, 0, 0.95) 100%);
+  border-radius: 80px;
+  overflow: visible;
+  border: 2px solid rgba(168, 85, 247, 0.3);
+  box-shadow: inset 0 0 60px rgba(168, 85, 247, 0.3);
+}
+.zone-label {
+  position: absolute;
+  bottom: -32px;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px currentColor;
+}
+.zone-green { left: 8%; color: var(--green); }
+.zone-earth { left: 47%; color: var(--orange); }
+.zone-red { left: 78%; color: var(--red); }
+.zone-blackhole { right: 1%; color: #888; }
+
+/* 區域標記 */
+.zone-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+.marker-universe { left: 12%; background: radial-gradient(circle, rgba(52,211,153,0.4), transparent); }
+.marker-earth {
+  left: 50%;
+  background: radial-gradient(circle, var(--orange), #c2410c);
+  box-shadow: 0 0 40px rgba(251, 146, 60, 0.8);
+  animation: earthSpin 20s linear infinite;
+}
+.marker-red { left: 80%; background: radial-gradient(circle, rgba(239,68,68,0.5), transparent); animation: pulse 2s ease-in-out infinite; }
+.marker-blackhole {
+  right: 2%;
+  background: radial-gradient(circle, #000 30%, #4c1d95 60%, transparent);
+  box-shadow: 0 0 60px rgba(76, 29, 149, 0.8), inset 0 0 30px black;
+  animation: spin 3s linear infinite;
+}
+@keyframes earthSpin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+
+/* 太空船 */
+.ship {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid white;
+  background-size: cover;
+  background-position: center;
+  background-color: #2d1b69;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: left 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s;
+  z-index: 5;
+  box-shadow: 0 0 20px rgba(255,255,255,0.5);
+}
+.ship:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+  z-index: 10;
+}
+.ship-tier-a { border-color: var(--green); box-shadow: 0 0 30px var(--green-glow); }
+.ship-tier-b { border-color: var(--orange); box-shadow: 0 0 25px var(--orange-glow); }
+.ship-tier-c { border-color: var(--red); box-shadow: 0 0 25px var(--red-glow); animation: shake 0.6s ease-in-out infinite; }
+@keyframes shake {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  25% { transform: translate(-48%, -52%) rotate(-3deg); }
+  75% { transform: translate(-52%, -48%) rotate(3deg); }
+}
+
+.ship-label {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: white;
+  font-weight: 600;
+}
+
+/* ===== 寶座 ===== */
+.throne-stage {
+  position: relative;
+  text-align: center;
+  padding: 60px 20px;
+}
+.throne {
+  font-size: 120px;
+  filter: drop-shadow(0 0 30px var(--gold));
+  animation: throneFloat 3s ease-in-out infinite;
+}
+@keyframes throneFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+.crown-ray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  background: conic-gradient(from 0deg, transparent, rgba(253, 224, 71, 0.15), transparent, rgba(253, 224, 71, 0.15), transparent, rgba(253, 224, 71, 0.15), transparent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: rayspin 8s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+@keyframes rayspin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== 排行榜 ===== */
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+.rank-row:hover { background: rgba(255,255,255,0.10); transform: translateX(4px); }
+.rank-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--orange));
+  color: black;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.rank-row:nth-child(1) .rank-num { background: linear-gradient(135deg, #fde047, #f59e0b); box-shadow: 0 0 20px #fde047; }
+.rank-row:nth-child(2) .rank-num { background: linear-gradient(135deg, #e5e7eb, #9ca3af); }
+.rank-row:nth-child(3) .rank-num { background: linear-gradient(135deg, #fbbf24, #b45309); }
+
+/* ===== checkbox 美化 ===== */
+.cb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+.cb:hover { background: rgba(168,85,247,0.15); }
+.cb input { width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; }
+.cb.checked { background: rgba(52, 211, 153, 0.15); border-color: var(--green); }
+
+/* ===== 金幣 / 蘋果 顯示 ===== */
+.coin-badge, .apple-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.coin-badge { background: rgba(253, 224, 71, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+.apple-badge { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid #ef4444; }
+
+/* ===== 頂部 nav ===== */
+.topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  background: rgba(10, 5, 30, 0.6);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(168,85,247,0.25);
+}
+.topbar .logo {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+/* ===== 通用 ===== */
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.muted { color: var(--text-dim); }
+.center { text-align: center; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .title-glow { font-size: 36px !important; }
+}
+
+/* 分組標籤色 */
+.group-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(168, 85, 247, 0.25);
+  color: white;
+  border: 1px solid rgba(168, 85, 247, 0.5);
+}
+
+/* ====== Top 5 賽車領獎台 ====== */
+.race-podium {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 12px;
+  padding: 30px 10px 0;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+.race-podium::-webkit-scrollbar { height: 6px; }
+.race-podium::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.5); border-radius: 3px; }
+.race-card {
+  flex: 0 0 130px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+}
+.race-card:hover { transform: translateY(-6px); }
+.race-card.active { transform: translateY(-8px); }
+.race-card.active .place-bar { box-shadow: 0 0 30px var(--gold); }
+.race-card .crown {
+  height: 28px;
+  font-size: 24px;
+  line-height: 1;
+}
+.race-card .race-ship {
+  width: 64px; height: 64px; border-radius: 50%;
+  background-size: cover; background-position: center;
+  margin: 0 auto 6px;
+  border: 3px solid;
+  box-shadow: 0 0 20px;
+}
+.race-card .race-name {
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.race-card .race-score {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.race-card .race-likes,
+.race-card .race-cmt {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 4px;
+}
+.race-card .race-likes.liked {
+  background: rgba(236, 72, 153, 0.25);
+  border-color: var(--pink);
+  color: #fbcfe8;
+}
+.place-bar {
+  margin-top: 8px;
+  border-radius: 8px 8px 0 0;
+  color: black;
+  font-weight: 900;
+  font-size: 18px;
+  padding: 8px 0;
+  transition: box-shadow 0.3s;
+}
+.race-p1 .place-bar { height: 90px; background: linear-gradient(180deg, #fde047, #f59e0b); }
+.race-p2 .place-bar { height: 70px; background: linear-gradient(180deg, #e5e7eb, #9ca3af); }
+.race-p3 .place-bar { height: 55px; background: linear-gradient(180deg, #fbbf24, #b45309); }
+.race-p4 .place-bar { height: 40px; background: linear-gradient(180deg, #a78bfa, #6d28d9); color: white; }
+.race-p5 .place-bar { height: 28px; background: linear-gradient(180deg, #f9a8d4, #be185d); color: white; }
+.race-p1 .race-ship { border-color: #fde047; box-shadow: 0 0 30px #fde047; transform: scale(1.15); }
+.race-p2 .race-ship { border-color: #e5e7eb; box-shadow: 0 0 20px #e5e7eb; }
+.race-p3 .race-ship { border-color: #fbbf24; box-shadow: 0 0 20px #fbbf24; }
+.race-p4 .race-ship, .race-p5 .race-ship { border-color: rgba(168,85,247,0.5); box-shadow: 0 0 15px rgba(168,85,247,0.3); }
+.race-detail {
+  margin-top: 14px;
+  padding: 16px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 14px;
+  border: 1px solid rgba(168,85,247,0.3);
+  display: none;
+}
+.race-detail.show { display: block; }
+.race-detail-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.race-detail-head .race-ship-mini {
+  width: 36px; height: 36px; border-radius: 50%;
+  background-size: cover; background-position: center;
+  border: 2px solid var(--gold);
+}
+
+/* 提示彈窗 */
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 999;
+  padding: 14px 22px;
+  border-radius: 12px;
+  background: rgba(20, 10, 50, 0.95);
+  border: 1px solid var(--gold);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  animation: toastIn 0.3s ease-out;
+}
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* 警告閃爍 */
+.warn-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(251, 146, 60, 0.2));
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 12px 0;
+  animation: warnPulse 1.6s ease-in-out infinite;
+}
+@keyframes warnPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0.6); }
+  50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
+}

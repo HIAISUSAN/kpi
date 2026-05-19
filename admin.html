@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Susan 後台 · KPI 宇宙</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  @media (max-width: 900px){ .admin-grid{ grid-template-columns: 1fr; } }
+  .panel { padding: 20px; }
+  .panel h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    color: var(--gold);
+    margin: 0 0 14px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px; text-align: left; border-bottom: 1px solid rgba(168,85,247,0.2); }
+  th { color: var(--gold); font-weight: 700; font-size: 12px; text-transform: uppercase; }
+  .mini-ship { width: 32px; height: 32px; border-radius: 50%; background-size: cover; display: inline-block; vertical-align: middle; border: 2px solid rgba(168,85,247,0.5); }
+  .row-actions { display: flex; gap: 6px; }
+  .btn-mini { padding: 4px 10px; font-size: 12px; border-radius: 999px; border: none; cursor: pointer; font-weight: 700; color: white; }
+  .btn-mini.warn { background: rgba(239,68,68,0.7); }
+  .btn-mini.ok { background: rgba(52,211,153,0.7); }
+  .btn-mini.info { background: rgba(168,85,247,0.7); }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 600px){ .stats-grid{ grid-template-columns: repeat(2,1fr); } }
+  .stat-card {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(168,85,247,0.3);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 800; color: var(--gold); }
+  .stat-card .lab { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .throne-pick {
+    display: flex; gap: 8px; flex-wrap: wrap; max-height: 200px; overflow-y: auto;
+    padding: 4px;
+  }
+  .throne-pick > div {
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(168,85,247,0.3);
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .throne-pick > div:hover { background: rgba(253,224,71,0.2); border-color: var(--gold); }
+  .throne-pick > div.picked { background: rgba(253,224,71,0.3); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+
+  /* 寶座公布動畫 */
+  .announce-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(20px);
+  }
+  .announce-overlay.show { display: flex; }
+  .announce-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 48px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  .announce-throne {
+    position: relative;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .throne-emoji { font-size: 140px; filter: drop-shadow(0 0 40px var(--gold)); animation: throneFloat 3s ease-in-out infinite; }
+  .winner-ship {
+    width: 100px; height: 100px; border-radius: 50%;
+    background-size: cover; background-position: center;
+    margin: -50px auto 10px;
+    border: 4px solid var(--gold);
+    box-shadow: 0 0 60px var(--gold);
+    position: relative;
+    z-index: 2;
+  }
+  .winner-name {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--gold);
+    text-shadow: 0 0 20px var(--gold);
+    margin-top: 10px;
+  }
+  .top5-stage {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    gap: 18px;
+    margin: 30px 0;
+  }
+  .podium {
+    text-align: center;
+    width: 90px;
+  }
+  .podium .ship-img {
+    width: 60px; height: 60px; border-radius: 50%;
+    background-size: cover; background-position: center;
+    margin: 0 auto 8px;
+    border: 3px solid;
+  }
+  .podium-bar {
+    background: linear-gradient(180deg, rgba(168,85,247,0.5), rgba(168,85,247,0.1));
+    border-radius: 8px 8px 0 0;
+    border: 1px solid rgba(168,85,247,0.5);
+    color: var(--gold);
+    font-weight: 800;
+    padding: 8px 0;
+  }
+  .place-1 .podium-bar { height: 110px; background: linear-gradient(180deg, #fde047, #f59e0b); color: black; }
+  .place-2 .podium-bar { height: 80px; background: linear-gradient(180deg, #e5e7eb, #9ca3af); color: black; }
+  .place-3 .podium-bar { height: 60px; background: linear-gradient(180deg, #fbbf24, #b45309); color: black; }
+
+  .firework {
+    position: fixed;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: firework 1.2s ease-out forwards;
+  }
+  @keyframes firework {
+    0% { transform: scale(0); opacity: 1; }
+    100% { transform: scale(40); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="starfield"></div>
+
+<nav class="topbar">
+  <a class="logo" href="index.html">🌌 KPI 宇宙 · 後台</a>
+  <div style="display:flex;gap:8px;">
+    <a class="btn btn-secondary" href="game.html" style="padding:8px 16px;font-size:13px;">🛸 回駕駛艙</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- 統計總覽 -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num" id="totalUsers">0</div><div class="lab">總成員</div></div>
+    <div class="stat-card"><div class="num" id="tierACount" style="color:var(--green);">0</div><div class="lab">🟢 A 層</div></div>
+    <div class="stat-card"><div class="num" id="tierBCount" style="color:var(--orange);">0</div><div class="lab">🟠 B 層</div></div>
+    <div class="stat-card"><div class="num" id="tierCCount" style="color:var(--red);">0</div><div class="lab">🔴 C 層</div></div>
+  </div>
+
+  <div class="admin-grid">
+
+    <!-- 寶座 + 公布 -->
+    <div class="card panel">
+      <h2>👑 本週寶座（每週一公布用）</h2>
+      <p style="color: var(--text-dim); font-size: 13px;">每週一 08:00 系統會在 Discord <code>#KPI</code> 提醒你選人。從下方挑一位本週寶座，週一晚上按「📢 公布」全員看到動畫。</p>
+      <div class="throne-pick" id="thronePick" style="margin: 14px 0;"></div>
+      <div id="thronePicked" style="margin: 10px 0; font-size: 14px;"></div>
+      <button class="btn btn-primary" id="announceBtn" style="width:100%;">📢 公布本週成績（觸發動畫）</button>
+    </div>
+
+    <!-- 團隊密碼 -->
+    <div class="card panel">
+      <h2>🔐 團隊密碼</h2>
+      <p style="color: var(--text-dim); font-size: 13px;">改密碼後，新成員必須用新的才能註冊。已註冊的人不受影響。</p>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <input type="text" id="teamPass" placeholder="新密碼" style="flex:1;">
+        <button class="btn btn-success" id="savePass">儲存</button>
+      </div>
+      <div style="margin-top:8px; font-size:13px;">目前密碼：<code id="currentPass" style="color:var(--gold);"></code></div>
+    </div>
+
+    <!-- 週結算 -->
+    <div class="card panel">
+      <h2>⏱ 週結算</h2>
+      <p style="color: var(--text-dim); font-size: 13px;">每週一 19:00 系統會自動跑。也可以手動觸發，把本週所有人的紅燈次數和淘汰判定一次寫入。</p>
+      <button class="btn btn-danger" id="settleBtn" style="margin-top:10px;">⚙️ 立即執行本週結算</button>
+      <div id="settleResult" style="margin-top:12px; font-size:13px;"></div>
+    </div>
+
+    <!-- 危險操作 -->
+    <div class="card panel">
+      <h2>🧪 開發測試</h2>
+      <p style="color: var(--text-dim); font-size: 13px;">demo 階段用，正式上線會移除。</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+        <button class="btn-mini info" id="seedBtn">+ 補入 Demo 帳號</button>
+        <button class="btn-mini warn" id="resetBtn">⚠️ 清空所有資料</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全成員清單 -->
+  <div class="card panel" style="margin-top: 20px;">
+    <h2>👥 全成員清單</h2>
+    <div style="overflow-x:auto;">
+    <table id="userTable">
+      <thead>
+        <tr>
+          <th>太空船</th><th>名字</th><th>組別</th><th>Email</th>
+          <th>🪙</th><th>🍎</th><th>本週狀態</th><th>🟢連續</th><th>🔴連續</th><th>帳號</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- 週統計（網頁版）-->
+  <div class="card panel" style="margin-top: 20px;">
+    <h2>📅 本週統計（網頁版）</h2>
+    <p style="color: var(--text-dim); font-size: 13px;">每週一 19:00 自動產生。也可在這裡即時看本週進度。</p>
+    <div id="weekTable" style="overflow-x:auto;"></div>
+  </div>
+</div>
+
+<!-- 公布動畫 overlay -->
+<div class="announce-overlay" id="announceOverlay">
+  <div class="announce-title title-glow">🎉 本週 KPI 揭曉 🎉</div>
+  <div class="announce-throne">
+    <div class="crown-ray"></div>
+    <div class="throne-emoji">👑</div>
+    <div class="winner-ship" id="winnerShip"></div>
+    <div class="winner-name" id="winnerName">—</div>
+    <div style="color: var(--text-dim); margin-top: 6px;">本週寶座</div>
+  </div>
+  <div class="top5-stage" id="top5Stage"></div>
+  <button class="btn btn-primary" id="closeAnnounce" style="margin-top:30px;">✨ 關閉</button>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/stars.js"></script>
+<script>
+(async () => {
+  try { await KPI.init(); } catch (e) {
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;color:white;">⚠️ 連不到雲端資料庫，請重新整理或檢查網路</div>';
+    return;
+  }
+  // 不自動 seed，由 admin 按鈕觸發
+
+  function refreshStats() {
+    const users = KPI.listUsers().filter(u => !u.eliminated);
+    document.getElementById('totalUsers').textContent = KPI.listUsers().length;
+    let a = 0, b = 0, c = 0;
+    users.forEach(u => {
+      const t = KPI.tierOf(u.id);
+      if (t === 'A') a++; else if (t === 'B') b++; else if (t === 'C') c++;
+    });
+    document.getElementById('tierACount').textContent = a;
+    document.getElementById('tierBCount').textContent = b;
+    document.getElementById('tierCCount').textContent = c;
+  }
+
+  // 把 A/B/C 轉成「🟢 綠燈 / 🟠 橘燈 / 🔴 紅燈」彩色顯示
+  function tierLabel(t) {
+    if (t === 'A') return '<span class="tier-badge tier-A">🟢 綠燈</span>';
+    if (t === 'B') return '<span class="tier-badge tier-B">🟠 橘燈</span>';
+    if (t === 'C') return '<span class="tier-badge tier-C">🔴 紅燈</span>';
+    if (t === 'OUT') return '<span class="tier-badge" style="background:#333;color:#888;border:1px solid #555;">不參與</span>';
+    return '—';
+  }
+
+  function refreshUsers() {
+    const tbody = document.querySelector('#userTable tbody');
+    tbody.innerHTML = '';
+    KPI.listUsers().forEach(u => {
+      const tier = KPI.tierOf(u.id);
+      const g = KPI.GROUPS.find(x => x.id === u.group);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="mini-ship" style="background-image:url(${u.shipImage});"></span></td>
+        <td><strong>${u.name}</strong></td>
+        <td><span class="group-badge">${g ? g.id : '?'}</span></td>
+        <td style="color:var(--text-dim);font-size:12px;">${u.email || '-'}</td>
+        <td>${u.coins||0}</td>
+        <td>${u.apples||0}</td>
+        <td>${tierLabel(tier)}</td>
+        <td><span style="color:var(--green); font-weight:700;">${u.greenStreak||0}</span></td>
+        <td><span style="color:var(--red); font-weight:700;">${u.redStreak||0}</span></td>
+        <td>${u.eliminated?'<span style="color:#888;">🕳️除名</span>':u.banned?'<span style="color:var(--red);">停用</span>':'<span style="color:var(--green);">啟用</span>'}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn-mini info" data-act="reset" data-id="${u.id}">重設密碼</button>
+            ${u.banned ? `<button class="btn-mini ok" data-act="unban" data-id="${u.id}">啟用</button>` : `<button class="btn-mini warn" data-act="ban" data-id="${u.id}">停用</button>`}
+            ${u.eliminated ? `<button class="btn-mini ok" data-act="revive" data-id="${u.id}">復活</button>` : ''}
+            <button class="btn-mini warn" data-act="del" data-id="${u.id}">刪除</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.onclick = async (e) => {
+      const btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const act = btn.dataset.act;
+      const u = KPI.getUser(id);
+      if (!u) return;
+      try {
+        if (act === 'reset') {
+          const np = prompt(`重設 ${u.name} 的密碼：`);
+          if (np) { await KPI.updateUser(id, { password: np }); alert('已重設 ✅'); }
+        } else if (act === 'ban') {
+          await KPI.updateUser(id, { banned: true });
+        } else if (act === 'unban') {
+          await KPI.updateUser(id, { banned: false });
+        } else if (act === 'revive') {
+          await KPI.updateUser(id, { eliminated: false, redStreak: 0 });
+        } else if (act === 'del') {
+          if (confirm(`確定刪除 ${u.name}？此操作不可恢復`)) await KPI.deleteUser(id);
+        }
+        refreshAll();
+      } catch (err) { alert('操作失敗：' + err.message); }
+    };
+  }
+
+  function refreshThronePick() {
+    const pick = document.getElementById('thronePick');
+    pick.innerHTML = '';
+    const cur = KPI.getSettings().throneOfWeek;
+    KPI.listUsers().filter(u => !u.eliminated && !u.banned).forEach(u => {
+      const d = document.createElement('div');
+      d.textContent = u.name;
+      d.dataset.id = u.id;
+      if (u.id === cur) d.classList.add('picked');
+      d.onclick = async () => {
+        try { await KPI.setSettings({ throneOfWeek: u.id }); refreshThronePick(); }
+        catch (err) { alert('儲存失敗：' + err.message); }
+      };
+      pick.appendChild(d);
+    });
+    const picked = KPI.getUser(cur);
+    document.getElementById('thronePicked').innerHTML = picked
+      ? `本週寶座：<strong style="color:var(--gold);">👑 ${picked.name}</strong>`
+      : '<span style="color:var(--text-dim);">尚未選擇</span>';
+  }
+
+  function refreshSettings() {
+    document.getElementById('currentPass').textContent = KPI.getSettings().teamPassword;
+  }
+
+  function refreshWeekTable() {
+    const wk = KPI.weekId();
+    const box = document.getElementById('weekTable');
+    const users = KPI.listUsers();
+    let html = `<div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">本週週次：<code style="color:var(--gold);">${wk}</code>（週二起算到下週一）</div>`;
+    html += '<table><thead><tr><th>名字</th><th>組</th><th>本週狀態</th><th>本週金幣</th><th>本週蘋果</th><th>🟢連續</th><th>🔴連續</th></tr></thead><tbody>';
+    users.filter(u => !u.eliminated).forEach(u => {
+      const t = KPI.tierOf(u.id);
+      const g = KPI.GROUPS.find(x => x.id === u.group);
+      html += `<tr>
+        <td><span class="mini-ship" style="background-image:url(${u.shipImage});width:24px;height:24px;"></span> ${u.name}</td>
+        <td>${g ? g.id : '?'}</td>
+        <td>${tierLabel(t)}</td>
+        <td>${u.coins||0}</td>
+        <td>${u.apples||0}</td>
+        <td style="color:var(--green); font-weight:700;">${u.greenStreak||0}</td>
+        <td style="color:var(--red); font-weight:700;">${u.redStreak||0}</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    box.innerHTML = html;
+  }
+
+  function refreshAll() {
+    refreshStats();
+    refreshUsers();
+    refreshThronePick();
+    refreshSettings();
+    refreshWeekTable();
+  }
+  refreshAll();
+
+  // 團隊密碼
+  document.getElementById('savePass').onclick = async () => {
+    const v = document.getElementById('teamPass').value.trim();
+    if (!v) return alert('密碼不可為空');
+    try {
+      await KPI.setSettings({ teamPassword: v });
+      document.getElementById('teamPass').value = '';
+      refreshSettings();
+      alert('已更新 ✅');
+    } catch (err) { alert('儲存失敗：' + err.message); }
+  };
+
+  // 結算
+  document.getElementById('settleBtn').onclick = async () => {
+    if (!confirm('確定執行本週結算？將更新所有人的紅燈次數，連續 3 紅者會被黑洞除名')) return;
+    const btn = document.getElementById('settleBtn');
+    btn.disabled = true; btn.textContent = '⏳ 結算中...';
+    try {
+      const r = await KPI.settleWeek();
+      const stats = Object.values(r);
+      document.getElementById('settleResult').innerHTML = `
+        ✅ 已結算 ${stats.length} 人 ·
+        <span style="color:var(--green);">🟢 ${stats.filter(s=>s.tier==='A').length}</span> ·
+        <span style="color:var(--orange);">🟠 ${stats.filter(s=>s.tier==='B').length}</span> ·
+        <span style="color:var(--red);">🔴 ${stats.filter(s=>s.tier==='C').length}</span> ·
+        <span style="color:#888;">🕳️ 除名 ${stats.filter(s=>s.eliminated).length}</span>`;
+      refreshAll();
+    } catch (err) { alert('結算失敗：' + err.message); }
+    btn.disabled = false; btn.textContent = '⚙️ 立即執行本週結算';
+  };
+
+  // 重置 / 補種
+  document.getElementById('resetBtn').onclick = async () => {
+    if (!confirm('⚠️ 將清空所有帳號、打卡、設定！確定？')) return;
+    try { await KPI.resetAll(); location.reload(); }
+    catch (err) { alert('重置失敗：' + err.message); }
+  };
+  document.getElementById('seedBtn').onclick = async () => {
+    try { await KPI.seedDemoUsers(); refreshAll(); }
+    catch (err) { alert('seed 失敗：' + err.message); }
+  };
+
+  // ===== 公布動畫 =====
+  document.getElementById('announceBtn').onclick = async () => {
+    const cur = KPI.getSettings().throneOfWeek;
+    if (!cur) return alert('請先挑本週寶座 👑');
+    const winner = KPI.getUser(cur);
+
+    document.getElementById('winnerShip').style.backgroundImage = `url(${winner.shipImage})`;
+    document.getElementById('winnerName').textContent = '👑 ' + winner.name;
+
+    // Top 5
+    const top5 = KPI.ranking().slice(0, 5);
+    const stage = document.getElementById('top5Stage');
+    stage.innerHTML = '';
+    // 排版順序：4, 2, 1, 3, 5 (中間最高)
+    const order = [3, 1, 0, 2, 4];
+    order.forEach(idx => {
+      if (!top5[idx]) return;
+      const u = top5[idx];
+      const place = idx + 1;
+      const tier = KPI.tierOf(u.id);
+      const borderColor = tier==='A'?'var(--green)':tier==='B'?'var(--orange)':'var(--red)';
+      const wrap = document.createElement('div');
+      wrap.className = `podium place-${place}`;
+      wrap.innerHTML = `
+        <div class="ship-img" style="background-image:url(${u.shipImage}); border-color:${borderColor};"></div>
+        <div style="font-size:12px; font-weight:700; margin-bottom:4px;">${u.name}</div>
+        <div class="podium-bar">${place}</div>`;
+      stage.appendChild(wrap);
+    });
+
+    try { await KPI.setSettings({ lastAnnouncement: new Date().toISOString() }); } catch (e) {}
+    document.getElementById('announceOverlay').classList.add('show');
+
+    // 煙火
+    for (let i = 0; i < 20; i++) {
+      setTimeout(() => {
+        const fw = document.createElement('div');
+        fw.className = 'firework';
+        const colors = ['#fde047', '#ec4899', '#a855f7', '#34d399', '#fb923c'];
+        fw.style.background = colors[Math.floor(Math.random()*colors.length)];
+        fw.style.left = Math.random() * 100 + 'vw';
+        fw.style.top = Math.random() * 100 + 'vh';
+        fw.style.boxShadow = `0 0 20px ${fw.style.background}`;
+        document.body.appendChild(fw);
+        setTimeout(() => fw.remove(), 1500);
+      }, i * 120);
+    }
+  };
+  document.getElementById('closeAnnounce').onclick = () => {
+    document.getElementById('announceOverlay').classList.remove('show');
+  };
+
+  // 每 10 秒從雲端 refresh
+  setInterval(async () => {
+    try { await KPI.refresh(); refreshAll(); }
+    catch (e) { console.warn('refresh failed', e); }
+  }, 10000);
+})();
+</script>
+</body>
+</html>

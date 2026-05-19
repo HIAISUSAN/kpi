@@ -1,0 +1,9 @@
+# 不上傳的東西
+node_modules/
+.vercel/
+.env
+.env.local
+*.log
+
+# 開發用
+setup/

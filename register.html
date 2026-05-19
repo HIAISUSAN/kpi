@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加入 · KPI 宇宙遊戲樂園</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .reg-wrap {
+    position: relative; z-index: 2;
+    max-width: 600px; margin: 60px auto; padding: 0 20px;
+  }
+  .step-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: var(--gold);
+  }
+  .step-sub { color: var(--text-dim); margin-bottom: 24px; }
+  .group-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  @media (max-width:600px){ .group-grid{ grid-template-columns: 1fr; } }
+  .group-card {
+    background: rgba(0,0,0,0.3);
+    border: 2px solid rgba(168,85,247,0.3);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .group-card:hover { border-color: var(--gold); background: rgba(168,85,247,0.15); }
+  .group-card.selected { border-color: var(--green); background: rgba(52,211,153,0.15); box-shadow: 0 0 20px rgba(52,211,153,0.3); }
+  .group-card .gname { font-weight: 800; margin-bottom: 4px; }
+  .group-card .gdesc { font-size: 12px; color: var(--text-dim); }
+  .ship-preview {
+    width: 100px; height: 100px; border-radius: 50%;
+    border: 3px solid var(--gold);
+    background: rgba(0,0,0,0.4);
+    margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    background-size: cover; background-position: center;
+    font-size: 50px;
+    box-shadow: 0 0 30px rgba(253,224,71,0.4);
+  }
+  .ship-uploader {
+    text-align: center;
+    padding: 16px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    border: 2px dashed rgba(168,85,247,0.5);
+    margin-bottom: 8px;
+  }
+  .field { margin-bottom: 18px; }
+  .err-msg { color: #fca5a5; font-size: 13px; margin-top: 6px; }
+  .step { display: none; }
+  .step.active { display: block; }
+</style>
+</head>
+<body>
+<div class="starfield"></div>
+
+<nav class="topbar">
+  <a class="logo" href="index.html">🌌 KPI 宇宙</a>
+  <a class="btn btn-secondary" href="login.html" style="padding:8px 18px;font-size:14px;">登入</a>
+</nav>
+
+<div class="reg-wrap">
+
+  <!-- STEP 1: 團隊密碼 -->
+  <div class="step active" id="step1">
+    <div class="card">
+      <div class="step-title">🔐 第一步 · 團隊密碼</div>
+      <div class="step-sub">請輸入 Susan 在 LINE 群組公告的團隊密碼</div>
+      <div class="field">
+        <label>團隊密碼</label>
+        <input type="password" id="teamPass" placeholder="團隊密碼" autofocus>
+        <div class="err-msg" id="teamErr" style="display:none;">團隊密碼錯誤，請向 Susan 確認</div>
+      </div>
+      <button class="btn btn-primary" id="nextStep1" style="width:100%;">下一步 →</button>
+      <div style="text-align:center; margin-top:14px;">
+        <a href="login.html" style="color:var(--text-dim); font-size:13px;">已經加入過了？登入 →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: 註冊資料 -->
+  <div class="step" id="step2">
+    <div class="card">
+      <div class="step-title">🚀 第二步 · 建立你的太空船</div>
+      <div class="step-sub">設定一次，之後手機/瀏覽器會記得你</div>
+
+      <!-- 太空船圖片 -->
+      <div class="field">
+        <label>太空船頭像（必填）</label>
+        <div class="ship-uploader">
+          <div class="ship-preview" id="shipPreview">🚀</div>
+          <input type="file" id="shipFile" accept="image/*" style="display:none;">
+          <button type="button" class="btn btn-secondary" id="pickShip" style="padding:8px 18px;font-size:14px;">📷 上傳圖片</button>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:8px;">建議方形圖片，會被裁成圓形</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>顯示名稱</label>
+        <input type="text" id="name" placeholder="例：佩凌、Susan、學謙">
+      </div>
+
+      <div class="field">
+        <label>選擇組別</label>
+        <div class="group-grid" id="groupGrid"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>密碼（8 位以上）</label>
+          <input type="password" id="pwd" placeholder="自己設一組好記的">
+        </div>
+        <div class="field">
+          <label>確認密碼</label>
+          <input type="password" id="pwd2" placeholder="再輸入一次">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Email（必填，落入橘/紅燈會收到警告信）</label>
+        <input type="email" id="email" placeholder="your@email.com">
+      </div>
+
+      <div class="err-msg" id="formErr" style="display:none;"></div>
+
+      <div style="display:flex; gap:10px; margin-top:18px;">
+        <button class="btn btn-secondary" id="backStep2" style="flex:0 0 auto;">← 上一步</button>
+        <button class="btn btn-primary" id="submitReg" style="flex:1;">🎉 加入遊戲</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/stars.js"></script>
+<script>
+(async () => {
+  try { await KPI.init(); } catch (e) { console.error('載入失敗', e); }
+  // 渲染組別清單
+  const grid = document.getElementById('groupGrid');
+  let selectedGroup = null;
+  KPI.GROUPS.filter(g => g.id !== 'H').forEach(g => {  // 註冊不顯示 H 組
+    const div = document.createElement('div');
+    div.className = 'group-card';
+    div.innerHTML = `<div class="gname">${g.name}</div><div class="gdesc">${g.desc}${g.note ? ' · ' + g.note : ''}</div>`;
+    div.onclick = () => {
+      document.querySelectorAll('.group-card').forEach(c => c.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedGroup = g.id;
+    };
+    grid.appendChild(div);
+  });
+
+  // Step 1 → Step 2
+  document.getElementById('nextStep1').onclick = () => {
+    const pass = document.getElementById('teamPass').value.trim();
+    const expected = KPI.getSettings().teamPassword;
+    if (pass === expected) {
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+    } else {
+      document.getElementById('teamErr').style.display = 'block';
+    }
+  };
+  document.getElementById('teamPass').addEventListener('keypress', e => {
+    if (e.key === 'Enter') document.getElementById('nextStep1').click();
+  });
+  document.getElementById('backStep2').onclick = () => {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+  };
+
+  // 太空船圖片上傳
+  let shipImage = null;
+  document.getElementById('pickShip').onclick = () => document.getElementById('shipFile').click();
+  document.getElementById('shipFile').onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      shipImage = ev.target.result;
+      const prev = document.getElementById('shipPreview');
+      prev.textContent = '';
+      prev.style.backgroundImage = `url(${shipImage})`;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 註冊送出
+  document.getElementById('submitReg').onclick = async () => {
+    const err = document.getElementById('formErr');
+    err.style.display = 'none';
+    function showErr(m) { err.textContent = m; err.style.display = 'block'; }
+    const name = document.getElementById('name').value.trim();
+    const pwd = document.getElementById('pwd').value;
+    const pwd2 = document.getElementById('pwd2').value;
+    const email = document.getElementById('email').value.trim();
+
+    if (!name) return showErr('請填寫顯示名稱');
+    if (!selectedGroup) return showErr('請選擇組別');
+    if (!shipImage) return showErr('請上傳太空船頭像');
+    if (pwd.length < 8) return showErr('密碼至少 8 位');
+    if (pwd !== pwd2) return showErr('兩次密碼不一致');
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return showErr('Email 格式錯誤');
+
+    try {
+      const btn = document.getElementById('submitReg');
+      btn.disabled = true; btn.textContent = '⏳ 建立中...';
+      const u = await KPI.addUser({ name, email, group: selectedGroup, password: pwd, shipImage });
+      localStorage.setItem('kpi.session', JSON.stringify(u.id));
+      window.location.href = 'game.html?welcome=1';
+    } catch (e) {
+      showErr(e.message);
+      const btn = document.getElementById('submitReg');
+      btn.disabled = false; btn.textContent = '🎉 加入遊戲';
+    }
+  };
+})();
+</script>
+</body>
+</html>

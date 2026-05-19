@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登入 · KPI 宇宙遊戲樂園</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .login-wrap {
+    position: relative; z-index: 2;
+    max-width: 460px; margin: 80px auto; padding: 0 20px;
+  }
+  .login-title {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    margin-bottom: 6px;
+    color: var(--gold);
+  }
+  .login-sub { text-align: center; color: var(--text-dim); margin-bottom: 24px; }
+  .ship-pick {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid rgba(168,85,247,0.4);
+    border-radius: 12px;
+    padding: 8px 12px;
+  }
+  .ship-pick-img {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+    border: 2px solid rgba(168,85,247,0.5);
+  }
+  .ship-pick select {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .ship-pick select:focus { box-shadow: none !important; }
+  .err-msg { color: #fca5a5; font-size: 13px; margin-top: 10px; text-align: center; }
+  .cb-remember { display: flex; align-items: center; gap: 8px; margin: 14px 0; font-size: 14px; color: var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="starfield"></div>
+
+<nav class="topbar">
+  <a class="logo" href="index.html">🌌 KPI 宇宙</a>
+  <a class="btn btn-secondary" href="register.html" style="padding:8px 18px;font-size:14px;">加入</a>
+</nav>
+
+<div class="login-wrap">
+  <div class="card">
+    <div class="login-title">👤 登入</div>
+    <div class="login-sub">選擇你的太空船並輸入密碼</div>
+
+    <div class="field">
+      <label>選擇你的太空船</label>
+      <div class="ship-pick">
+        <div class="ship-pick-img" id="shipImg">👽</div>
+        <select id="nameSel">
+          <option value="">-- 選擇你的暱稱 --</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>密碼</label>
+      <input type="password" id="pwd" placeholder="輸入你的密碼" autocomplete="current-password">
+    </div>
+
+    <label class="cb-remember">
+      <input type="checkbox" id="remember" checked>
+      <span>記住我 90 天（手機上記得勾這個 📱）</span>
+    </label>
+
+    <button class="btn btn-primary" id="loginBtn" style="width:100%;">🚀 進入駕駛艙</button>
+    <div class="err-msg" id="err" style="display:none;"></div>
+
+    <div style="text-align:center; margin-top:16px; font-size:13px; color: var(--text-dim);">
+      還沒加入？ <a href="register.html" style="color:var(--gold);">建立太空船 →</a><br>
+      <span style="display:inline-block; margin-top:6px;">忘記密碼？請聯絡 Susan 重設</span>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:14px; font-size:12px; color: var(--text-dim);">
+    Demo 模式：使用 <code style="color:var(--gold);">demo</code> 即可登入示範帳號
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/stars.js"></script>
+<script>
+(async () => {
+  try { await KPI.init(); } catch (e) { console.error('載入失敗', e); }
+
+  const sel = document.getElementById('nameSel');
+  const img = document.getElementById('shipImg');
+  const users = KPI.listUsers();
+  users.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.id;
+    opt.textContent = u.name + (u.eliminated ? ' (已除名)' : u.banned ? ' (停用)' : '');
+    opt.disabled = u.eliminated || u.banned;
+    sel.appendChild(opt);
+  });
+
+  sel.onchange = () => {
+    const u = KPI.getUser(sel.value);
+    if (u && u.shipImage) { img.style.backgroundImage = `url(${u.shipImage})`; img.textContent = ''; }
+    else { img.style.backgroundImage = ''; img.textContent = '👽'; }
+  };
+
+  // 如果已登入，直接跳轉
+  if (KPI.currentUser()) {
+    window.location.href = 'game.html';
+  }
+
+  async function tryLogin() {
+    const err = document.getElementById('err');
+    err.style.display = 'none';
+    const u = KPI.getUser(sel.value);
+    const pwd = document.getElementById('pwd').value;
+    if (!u) { err.textContent = '請選擇你的暱稱'; err.style.display = 'block'; return; }
+    try {
+      await KPI.login(u.name, pwd);
+      window.location.href = 'game.html';
+    } catch (e) {
+      err.textContent = e.message;
+      err.style.display = 'block';
+    }
+  }
+  document.getElementById('loginBtn').onclick = tryLogin;
+  document.getElementById('pwd').addEventListener('keypress', e => { if (e.key === 'Enter') tryLogin(); });
+})();
+</script>
+</body>
+</html>
