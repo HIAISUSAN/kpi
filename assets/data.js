@@ -332,19 +332,32 @@ const KPI = (() => {
     return 'B';
   }
 
+  // 簡單 hash → 0-1 區間（依 userId 穩定分散）
+  function _hash01(s, salt = '') {
+    let h = 0;
+    const str = s + salt;
+    for (let i = 0; i < str.length; i++) h = ((h * 31) + str.charCodeAt(i)) | 0;
+    return (Math.abs(h) % 1000) / 1000;
+  }
+
   function shipPosition(userId) {
     const tier = tierOf(userId);
     const u = getUser(userId);
-    if (!u) return 0.5;
-    if (tier === 'A') return 0.12;
-    if (tier === 'B') return 0.50;
-    if (tier === 'C') {
+    if (!u) return { x: 0.5, y: 0.5 };
+    // 每個分層有個橫向範圍，hash 出固定 offset 讓人不會疊在同點
+    let base, range;
+    if (tier === 'A') { base = 0.04; range = 0.18; }
+    else if (tier === 'C') {
       const streak = u.redStreak || 0;
-      if (streak >= 3) return 0.97;
-      if (streak === 2) return 0.88;
-      return 0.78;
+      if (streak >= 3) { base = 0.94; range = 0.03; }
+      else if (streak === 2) { base = 0.85; range = 0.08; }
+      else { base = 0.72; range = 0.10; }
+    } else { // B tier 起點：橘燈區寬一點，讓 30 人散得開
+      base = 0.38; range = 0.24;
     }
-    return 0.50;
+    const x = base + _hash01(userId, 'x') * range;
+    const y = 0.20 + _hash01(userId, 'y') * 0.60; // 垂直 20%-80% 散開
+    return { x, y };
   }
 
   function ranking() {
