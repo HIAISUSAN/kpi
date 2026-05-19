@@ -384,9 +384,7 @@
       const ship = document.createElement('div');
       ship.className = 'ship ship-tier-' + tier.toLowerCase();
       ship.style.backgroundImage = `url(${u.shipImage})`;
-      const pos = KPI.shipPosition(u.id);
-      ship.style.left = (pos.x * 100) + '%';
-      ship.style.top = (pos.y * 100) + '%';
+      ship.style.left = (KPI.shipPosition(u.id) * 100) + '%';
       ship.title = u.name;
       const lab = document.createElement('div');
       lab.className = 'ship-label';
