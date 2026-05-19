@@ -162,18 +162,29 @@ const KPI = (() => {
   }
 
   // ========= 初始化：從 Supabase 抓所有資料到 cache =========
+  // 各 endpoint 獨立處理，一個失敗不影響其他
+  async function _safeGet(path, mapper, fallback) {
+    try {
+      const data = await _get(path);
+      return mapper ? data.map(mapper) : data;
+    } catch (e) {
+      console.warn('載入失敗', path, e.message);
+      return fallback;
+    }
+  }
+
   async function init() {
     const [users, checkins, likes, comments, settings] = await Promise.all([
-      _get('/users?select=*&order=created_at.asc'),
-      _get('/checkins?select=*'),
-      _get('/likes?select=*'),
-      _get('/comments?select=*&order=created_at.desc'),
-      _get('/settings?select=*'),
+      _safeGet('/users?select=*&order=created_at.asc', userFromDb, []),
+      _safeGet('/checkins?select=*', ciFromDb, []),
+      _safeGet('/likes?select=*', likeFromDb, []),
+      _safeGet('/comments?select=*&order=created_at.desc', cmtFromDb, []),
+      _safeGet('/settings?select=*', null, []),
     ]);
-    cache.users = users.map(userFromDb);
-    cache.checkins = checkins.map(ciFromDb);
-    cache.likes = likes.map(likeFromDb);
-    cache.comments = comments.map(cmtFromDb);
+    cache.users = users;
+    cache.checkins = checkins;
+    cache.likes = likes;
+    cache.comments = comments;
     cache.settings = {};
     settings.forEach(s => { cache.settings[s.key] = s.value; });
     cache.loaded = true;
