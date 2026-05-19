@@ -176,7 +176,7 @@
     <span style="width:14px; height:14px; background:var(--red); border-radius:50%; box-shadow:0 0 14px var(--red); animation:livePulse 1.5s ease-in-out infinite;"></span>
     <span id="podiumTitle" style="font-family:'Orbitron',sans-serif; font-weight:900; font-size:30px; color:var(--gold); text-shadow: 0 0 20px rgba(253,224,71,0.5);">🔒 本週排行榜尚未公布</span>
   </div>
-  <div id="podiumSub" style="text-align:center; font-size:14px; color:var(--text-dim); margin-bottom: 14px;">Susan 將於每週一晚 19:00 結算 + 公布 ⏰</div>
+  <div id="podiumSub" style="text-align:center; font-size:14px; color:var(--text-dim); margin-bottom: 14px;">Susan 將於每週二晚 19:00 結算 + 公布 ⏰</div>
   <div class="race-podium" id="homePodium" style="min-height: 240px;"></div>
 </section>
 
@@ -228,7 +228,7 @@
     <div class="feature">
       <span class="feature-icon">👑</span>
       <div class="feature-title">週寶座</div>
-      <div class="feature-desc">每週一晚總結公布<br>表現最佳者登上寶座</div>
+      <div class="feature-desc">每週二晚總結公布<br>表現最佳者登上寶座</div>
     </div>
   </div>
   <div class="tagline" style="margin-top: 40px;">『 留下來的，才有資格被放大 』</div>
@@ -295,11 +295,11 @@
     // 還沒公布 → 隱藏排行榜，顯示等候提示
     if (!announced) {
       if (titleEl) titleEl.textContent = '🔒 本週排行榜尚未公布';
-      if (subEl) subEl.textContent = 'Susan 將於每週一晚 19:00 結算 + 公布 ⏰';
+      if (subEl) subEl.textContent = 'Susan 將於每週二晚 19:00 結算 + 公布 ⏰';
       box.innerHTML = `<div style="text-align:center; color:var(--text-dim); padding:50px 20px; width:100%; line-height:1.8;">
         <div style="font-size:48px; margin-bottom:10px;">⏰</div>
         <div style="font-size:18px; font-weight:700; color:var(--gold);">等待本週公布</div>
-        <div style="font-size:14px; margin-top:8px;">大家在背後努力打卡中 🚀<br>每週一晚 Susan 結算後，前 5 名會在這裡登台 🏆</div>
+        <div style="font-size:14px; margin-top:8px;">大家在背後努力打卡中 🚀<br>每週二晚 Susan 結算後，前 5 名會在這裡登台 🏆</div>
       </div>`;
       return;
     }
