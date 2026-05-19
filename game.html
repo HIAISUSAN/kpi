@@ -347,7 +347,45 @@
 <nav class="topbar">
   <a class="logo" href="index.html">🌌 KPI 宇宙</a>
   <div class="topbar-user" id="topbarUser"></div>
+  <button id="settingsBtn" title="個人設定" style="background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.5); color:white; padding:8px 14px; border-radius:999px; cursor:pointer; font-size:14px; margin-left:auto;">⚙️ 設定</button>
 </nav>
+
+<!-- ⚙️ 個人設定 Modal -->
+<div id="settingsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+  <div class="card" style="width:90%; max-width:460px; padding:32px; max-height:90vh; overflow-y:auto;">
+    <div style="text-align:center; font-size:48px; margin-bottom:6px;">⚙️</div>
+    <div style="text-align:center; font-family:'Orbitron',sans-serif; font-weight:800; font-size:22px; color:var(--gold); margin-bottom:6px;">個人設定</div>
+    <div style="text-align:center; color:var(--text-dim); font-size:13px; margin-bottom:20px;">改你的太空船和暱稱</div>
+
+    <!-- 太空船圖片 -->
+    <div class="field">
+      <label>太空船頭像</label>
+      <div style="text-align:center; padding:16px; background:rgba(0,0,0,0.3); border-radius:12px; border:2px dashed rgba(168,85,247,0.5);">
+        <div id="setShipPrev" style="width:100px; height:100px; border-radius:50%; border:3px solid var(--gold); background-size:cover; background-position:center; margin:0 auto 12px; box-shadow:0 0 30px rgba(253,224,71,0.4);"></div>
+        <input type="file" id="setShipFile" accept="image/*" style="display:none;">
+        <button type="button" class="btn btn-secondary" id="setPickShip" style="padding:8px 18px; font-size:14px;">📷 更換圖片</button>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:8px;">建議方形圖片，會被裁成圓形</div>
+      </div>
+    </div>
+
+    <!-- 暱稱 -->
+    <div class="field">
+      <label>顯示名稱（請寫 <strong style="color:var(--gold);">真實名 2 字 + 英文名</strong>）</label>
+      <input type="text" id="setName" placeholder="例：佩凌 Lynn">
+    </div>
+
+    <div id="setErr" style="color:#fca5a5; font-size:13px; margin-bottom:10px; display:none;"></div>
+
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn btn-secondary" id="setCancel" style="flex:0 0 auto; padding:10px 18px;">取消</button>
+      <button class="btn btn-primary" id="setSave" style="flex:1;">💾 儲存</button>
+    </div>
+
+    <div style="border-top:1px dashed rgba(168,85,247,0.3); margin-top:20px; padding-top:14px; text-align:center;">
+      <button class="btn btn-danger" id="setLogout" style="padding:8px 20px; font-size:14px;">登出</button>
+    </div>
+  </div>
+</div>
 
 <div class="container">
 
@@ -652,6 +690,78 @@
   };
 
   document.getElementById('logoutBtn').onclick = () => {
+    KPI.logout();
+    window.location.href = 'index.html';
+  };
+
+  // ===== ⚙️ 個人設定 Modal =====
+  const setModal = document.getElementById('settingsModal');
+  const setShipPrev = document.getElementById('setShipPrev');
+  const setShipFile = document.getElementById('setShipFile');
+  const setName = document.getElementById('setName');
+  const setErr = document.getElementById('setErr');
+  let newShipImage = null;
+
+  document.getElementById('settingsBtn').onclick = () => {
+    me = KPI.getUser(me.id);
+    if (!me) return;
+    newShipImage = null;
+    setShipPrev.style.backgroundImage = `url(${me.shipImage})`;
+    setName.value = me.name;
+    setErr.style.display = 'none';
+    setModal.style.display = 'flex';
+  };
+
+  document.getElementById('setPickShip').onclick = () => setShipFile.click();
+  setShipFile.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      newShipImage = ev.target.result;
+      setShipPrev.style.backgroundImage = `url(${newShipImage})`;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  document.getElementById('setCancel').onclick = () => { setModal.style.display = 'none'; };
+  setModal.addEventListener('click', e => { if (e.target === setModal) setModal.style.display = 'none'; });
+
+  document.getElementById('setSave').onclick = async () => {
+    setErr.style.display = 'none';
+    function showErr(m) { setErr.textContent = m; setErr.style.display = 'block'; }
+    const name = setName.value.trim();
+    if (!name) return showErr('暱稱不可空白');
+    // 檢查名字重複（排除自己）
+    const dup = KPI.listUsers().find(u => u.name === name && u.id !== me.id);
+    if (dup) return showErr('這個暱稱已被其他人使用，請換一個');
+
+    const btn = document.getElementById('setSave');
+    btn.disabled = true; btn.textContent = '⏳ 儲存中...';
+    try {
+      const patch = { name };
+      if (newShipImage) patch.shipImage = newShipImage;
+      await KPI.updateUser(me.id, patch);
+      me = KPI.getUser(me.id);
+      // 重新渲染 topbar
+      const groupObj2 = KPI.GROUPS.find(g => g.id === me.group);
+      document.getElementById('topbarUser').innerHTML = `
+        <div class="my-ship" style="background-image:url(${me.shipImage});"></div>
+        <div>
+          <div class="my-name">${me.name}</div>
+          <div class="my-group">${groupObj2 ? groupObj2.name : me.group}</div>
+        </div>`;
+      renderUniverse(); renderRanking(); renderMyStats();
+      setModal.style.display = 'none';
+      showToast('✅ 個人設定已更新');
+    } catch (err) {
+      showErr('儲存失敗：' + err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = '💾 儲存';
+    }
+  };
+
+  document.getElementById('setLogout').onclick = () => {
     KPI.logout();
     window.location.href = 'index.html';
   };
