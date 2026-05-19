@@ -512,10 +512,10 @@
   const topbar = document.getElementById('topbarUser');
   const groupObj = KPI.GROUPS.find(g => g.id === me.group);
   topbar.innerHTML = `
-    <div class="my-ship" style="background-image:url(${me.shipImage});"></div>
+    <div class="my-ship gb-${me.group}" style="background-image:url(${me.shipImage});"></div>
     <div>
       <div class="my-name">${me.name}</div>
-      <div class="my-group">${groupObj ? groupObj.name : me.group}</div>
+      <div class="my-group gc-${me.group}">${groupObj ? groupObj.name : me.group}</div>
     </div>`;
 
   // 渲染主帳號 radio
@@ -746,10 +746,10 @@
       // 重新渲染 topbar
       const groupObj2 = KPI.GROUPS.find(g => g.id === me.group);
       document.getElementById('topbarUser').innerHTML = `
-        <div class="my-ship" style="background-image:url(${me.shipImage});"></div>
+        <div class="my-ship gb-${me.group}" style="background-image:url(${me.shipImage});"></div>
         <div>
           <div class="my-name">${me.name}</div>
-          <div class="my-group">${groupObj2 ? groupObj2.name : me.group}</div>
+          <div class="my-group gc-${me.group}">${groupObj2 ? groupObj2.name : me.group}</div>
         </div>`;
       renderUniverse(); renderRanking(); renderMyStats();
       setModal.style.display = 'none';

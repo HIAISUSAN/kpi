@@ -160,8 +160,8 @@
   let selectedGroup = null;
   KPI.GROUPS.filter(g => g.id !== 'H').forEach(g => {  // 註冊不顯示 H 組
     const div = document.createElement('div');
-    div.className = 'group-card';
-    div.innerHTML = `<div class="gname">${g.name}</div><div class="gdesc">${g.desc}${g.note ? ' · ' + g.note : ''}</div>`;
+    div.className = 'group-card gb-' + g.id;
+    div.innerHTML = `<div class="gname gc-${g.id}">${g.name}</div><div class="gdesc">${g.desc}${g.note ? ' · ' + g.note : ''}</div>`;
     div.onclick = () => {
       document.querySelectorAll('.group-card').forEach(c => c.classList.remove('selected'));
       div.classList.add('selected');

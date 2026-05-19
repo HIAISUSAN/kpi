@@ -303,7 +303,7 @@
       tr.innerHTML = `
         <td><span class="mini-ship" style="background-image:url(${u.shipImage});"></span></td>
         <td><strong>${u.name}</strong></td>
-        <td><span class="group-badge">${g ? g.id : '?'}</span></td>
+        <td><span class="group-badge group-${g ? g.id : ''}">${g ? g.id : '?'}</span></td>
         <td style="color:var(--text-dim);font-size:12px;">${u.email || '-'}</td>
         <td>${u.coins||0}</td>
         <td>${u.apples||0}</td>
@@ -387,7 +387,7 @@
       const g = KPI.GROUPS.find(x => x.id === u.group);
       html += `<tr>
         <td><span class="mini-ship" style="background-image:url(${u.shipImage});width:24px;height:24px;"></span> ${u.name}</td>
-        <td>${g ? g.id : '?'}</td>
+        <td><span class="group-badge group-${g ? g.id : ''}">${g ? g.id : '?'}</span></td>
         <td>${tierLabel(t)}</td>
         <td>${u.coins||0}</td>
         <td>${u.apples||0}</td>

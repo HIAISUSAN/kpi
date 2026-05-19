@@ -436,7 +436,7 @@ label {
   .title-glow { font-size: 36px !important; }
 }
 
-/* 分組標籤色 */
+/* 分組標籤色（8 組各自顏色，方便辨識） */
 .group-badge {
   display: inline-block;
   padding: 3px 10px;
@@ -447,6 +447,32 @@ label {
   color: white;
   border: 1px solid rgba(168, 85, 247, 0.5);
 }
+.group-badge.group-A { background: rgba(168, 85, 247, 0.25); border-color: #a855f7; color: #e9d5ff; }
+.group-badge.group-B { background: rgba(59, 130, 246, 0.25);  border-color: #3b82f6; color: #bfdbfe; }
+.group-badge.group-C { background: rgba(236, 72, 153, 0.25);  border-color: #ec4899; color: #fbcfe8; }
+.group-badge.group-D { background: rgba(6, 182, 212, 0.25);   border-color: #06b6d4; color: #a5f3fc; }
+.group-badge.group-E { background: rgba(234, 179, 8, 0.25);   border-color: #eab308; color: #fef08a; }
+.group-badge.group-F { background: rgba(217, 70, 239, 0.25);  border-color: #d946ef; color: #f5d0fe; }
+.group-badge.group-G { background: rgba(20, 184, 166, 0.25);  border-color: #14b8a6; color: #99f6e4; }
+.group-badge.group-H { background: rgba(107, 114, 128, 0.25); border-color: #6b7280; color: #e5e7eb; }
+
+/* 組別主色（給卡片邊框、文字顏色使用） */
+.gc-A { color: #d8b4fe; }
+.gc-B { color: #93c5fd; }
+.gc-C { color: #f9a8d4; }
+.gc-D { color: #67e8f9; }
+.gc-E { color: #fde047; }
+.gc-F { color: #f0abfc; }
+.gc-G { color: #5eead4; }
+.gc-H { color: #d1d5db; }
+.gb-A { border-color: #a855f7 !important; box-shadow: 0 0 12px rgba(168,85,247,0.3); }
+.gb-B { border-color: #3b82f6 !important; box-shadow: 0 0 12px rgba(59,130,246,0.3); }
+.gb-C { border-color: #ec4899 !important; box-shadow: 0 0 12px rgba(236,72,153,0.3); }
+.gb-D { border-color: #06b6d4 !important; box-shadow: 0 0 12px rgba(6,182,212,0.3); }
+.gb-E { border-color: #eab308 !important; box-shadow: 0 0 12px rgba(234,179,8,0.3); }
+.gb-F { border-color: #d946ef !important; box-shadow: 0 0 12px rgba(217,70,239,0.3); }
+.gb-G { border-color: #14b8a6 !important; box-shadow: 0 0 12px rgba(20,184,166,0.3); }
+.gb-H { border-color: #6b7280 !important; }
 
 /* ====== Top 5 賽車領獎台 ====== */
 .race-podium {
