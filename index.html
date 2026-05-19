@@ -188,8 +188,8 @@
     駕駛你的太空船，從地球出發 🌍 完成任務飛向綠色宇宙 🟢
   </p>
   <div class="btn-row" style="margin-bottom: 0;">
-    <a href="register.html" class="btn btn-primary">🚀 進入遊戲</a>
-    <a href="login.html" class="btn btn-secondary">👤 我已有帳號</a>
+    <a href="#" data-gate="register.html" class="btn btn-primary">🚀 進入遊戲</a>
+    <a href="#" data-gate="login.html" class="btn btn-secondary">👤 我已有帳號</a>
   </div>
 </section>
 
@@ -234,6 +234,21 @@
   <div class="tagline" style="margin-top: 40px;">『 留下來的，才有資格被放大 』</div>
 </section>
 
+<!-- 🔐 團隊密碼彈窗 -->
+<div id="gateModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+  <div class="card" style="width:90%; max-width:420px; padding:32px;">
+    <div style="text-align:center; margin-bottom:6px; font-size:48px;">🔐</div>
+    <div style="text-align:center; font-family:'Orbitron',sans-serif; font-weight:800; font-size:22px; color:var(--gold); margin-bottom:6px;">團隊密碼</div>
+    <div style="text-align:center; color:var(--text-dim); font-size:13px; margin-bottom:18px;">請輸入 Susan 在 LINE 群組公告的團隊密碼</div>
+    <input type="password" id="gatePass" placeholder="團隊密碼" autocomplete="off">
+    <div id="gateErr" style="color:#fca5a5; font-size:13px; margin-top:8px; display:none;">密碼錯誤，請向 Susan 確認</div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn btn-secondary" id="gateCancel" style="flex:0 0 auto; padding:10px 18px;">取消</button>
+      <button class="btn btn-primary" id="gateSubmit" style="flex:1;">確認進入 →</button>
+    </div>
+  </div>
+</div>
+
 <script src="assets/data.js"></script>
 <script src="assets/stars.js"></script>
 <script>
@@ -245,6 +260,40 @@
   const isLoggedIn = !!KPI.currentUser();
   document.getElementById('podiumSection').style.display = isLoggedIn ? 'block' : 'none';
   document.getElementById('liveSection').style.display = isLoggedIn ? 'block' : 'none';
+
+  // ===== 團隊密碼門檻：「進入遊戲」/「我已有帳號」 都要先驗證 =====
+  const gateModal = document.getElementById('gateModal');
+  const gatePass = document.getElementById('gatePass');
+  const gateErr = document.getElementById('gateErr');
+  let gateTarget = '';
+
+  function openGate(target) {
+    gateTarget = target;
+    gatePass.value = '';
+    gateErr.style.display = 'none';
+    gateModal.style.display = 'flex';
+    setTimeout(() => gatePass.focus(), 100);
+  }
+  function closeGate() {
+    gateModal.style.display = 'none';
+  }
+  function submitGate() {
+    const expected = KPI.getSettings().teamPassword;
+    if (gatePass.value === expected) {
+      sessionStorage.setItem('kpi.gate', '1');
+      window.location.href = gateTarget;
+    } else {
+      gateErr.style.display = 'block';
+      gatePass.select();
+    }
+  }
+  document.querySelectorAll('a[data-gate]').forEach(a => {
+    a.onclick = (e) => { e.preventDefault(); openGate(a.dataset.gate); };
+  });
+  document.getElementById('gateCancel').onclick = closeGate;
+  document.getElementById('gateSubmit').onclick = submitGate;
+  gatePass.addEventListener('keypress', e => { if (e.key === 'Enter') submitGate(); });
+  gateModal.addEventListener('click', e => { if (e.target === gateModal) closeGate(); });
 
   // ===== 渲染即時統計 =====
   function renderStats() {

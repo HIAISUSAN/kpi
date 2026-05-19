@@ -148,6 +148,13 @@
 <script>
 (async () => {
   try { await KPI.init(); } catch (e) { console.error('載入失敗', e); }
+
+  // 如果首頁已經驗證過團隊密碼，直接跳到 step 2
+  if (sessionStorage.getItem('kpi.gate') === '1') {
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+  }
+
   // 渲染組別清單
   const grid = document.getElementById('groupGrid');
   let selectedGroup = null;
