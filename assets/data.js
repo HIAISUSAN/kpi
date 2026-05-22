@@ -6,8 +6,8 @@
 const KPI = (() => {
 
   // ========= Supabase 連線設定 =========
-  const SUPABASE_URL = 'https://nukceeqklkmnndgijehj.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_jFJLeyumi1hQsnkyaDXrrQ_piDukx6a';
+  const SUPABASE_URL = 'https://qvjreimahccbaeiiolpv.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_IKyhq-BNClrLdoJIgkLfrQ_WvnFnkV5';
 
   const REST = SUPABASE_URL + '/rest/v1';
   const HEADERS = {
