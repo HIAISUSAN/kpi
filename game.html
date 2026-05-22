@@ -347,7 +347,8 @@
 <nav class="topbar">
   <a class="logo" href="index.html">🌌 KPI 宇宙</a>
   <div class="topbar-user" id="topbarUser"></div>
-  <button id="settingsBtn" title="個人設定" style="background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.5); color:white; padding:8px 14px; border-radius:999px; cursor:pointer; font-size:14px; margin-left:auto;">⚙️ 設定</button>
+  <button id="manualRefreshBtn" title="抓最新資料" style="background:rgba(52,211,153,0.2); border:1px solid rgba(52,211,153,0.5); color:white; padding:8px 14px; border-radius:999px; cursor:pointer; font-size:14px; margin-left:auto;">🔄 重新整理</button>
+  <button id="settingsBtn" title="個人設定" style="background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.5); color:white; padding:8px 14px; border-radius:999px; cursor:pointer; font-size:14px; margin-left:8px;">⚙️ 設定</button>
 </nav>
 
 <!-- ⚙️ 個人設定 Modal -->
@@ -1048,15 +1049,9 @@
     setTimeout(() => showToast('🎉 歡迎加入 KPI 宇宙樂園！'), 300);
   }
 
-  // 每 60 秒從雲端 refresh + 重新渲染（控制 Supabase 流量）
-  setInterval(async () => {
-    // 使用者正在打字 → 跳過本次刷新（避免吃掉留言）
-    const active = document.activeElement;
-    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') && active.value) {
-      return;
-    }
-    // 分頁切到背景時不刷新（省流量）
-    if (document.hidden) return;
+  // 不自動輪詢（為了省 Supabase 流量）
+  // 想看最新資料 → 點右上「🔄 重新整理」或重新整理頁面
+  async function manualRefresh() {
     try { await KPI.refresh(); } catch (e) { console.warn('refresh failed', e); }
     const fresh = KPI.getUser(me.id);
     if (fresh) {
@@ -1065,9 +1060,12 @@
       if (me.banned) { KPI.logout(); alert('你的帳號已被停用'); window.location.href = 'index.html'; return; }
       if (me.eliminated) { KPI.logout(); alert('你的太空船被黑洞吞噬 🕳️'); window.location.href = 'index.html'; return; }
     }
-    // 如果暫時抓不到 user（網路問題等），不要踢人，繼續用上次的 me
     renderUniverse(); renderMyStats(); renderRanking();
-  }, 10000);
+    showToast('🔄 已更新最新資料');
+  }
+  // 綁定右上手動重整按鈕
+  const refreshBtnEl = document.getElementById('manualRefreshBtn');
+  if (refreshBtnEl) refreshBtnEl.onclick = manualRefresh;
 })();
 </script>
 </body>

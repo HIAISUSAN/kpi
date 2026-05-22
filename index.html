@@ -457,12 +457,8 @@
   renderTrack();
   renderTop5();
 
-  // 每 60 秒從雲端 refresh + 重新渲染（控制 Supabase 流量）
-  setInterval(async () => {
-    if (document.hidden) return;
-    try { await KPI.refresh(); } catch (e) { console.warn('refresh failed', e); }
-    renderStats(); renderTrack(); renderTop5();
-  }, 60000);
+  // 不自動輪詢（為了省 Supabase 流量）
+  // 想看最新資料 → 重新整理頁面
 })();
 </script>
 </body>
