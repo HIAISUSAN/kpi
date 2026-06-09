@@ -78,14 +78,34 @@
 
     <div style="text-align:center; margin-top:16px; font-size:13px; color: var(--text-dim);">
       還沒加入？ <a href="register.html" style="color:var(--gold);">建立太空船 →</a><br>
-      <span style="display:inline-block; margin-top:6px;">忘記密碼？請聯絡 Susan 重設</span>
+      <a href="#" id="forgotLink" style="color:var(--gold); display:inline-block; margin-top:6px;">🔑 忘記密碼？寄到我信箱</a>
     </div>
   </div>
 
 </div>
 
+<!-- 🔑 找回帳號密碼 Modal -->
+<div id="forgotModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+  <div class="card" style="width:90%; max-width:440px; padding:32px;">
+    <div style="text-align:center; font-size:48px; margin-bottom:6px;">🔑</div>
+    <div style="text-align:center; font-family:'Orbitron',sans-serif; font-weight:800; font-size:22px; color:var(--gold); margin-bottom:6px;">找回我的帳號</div>
+    <div style="text-align:center; color:var(--text-dim); font-size:13px; margin-bottom:18px;">輸入你註冊時的 Email，<br>系統會把暱稱 + 密碼寄到那個信箱</div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="forgotEmail" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div id="forgotErr" style="color:#fca5a5; font-size:13px; margin-bottom:10px; display:none;"></div>
+    <div id="forgotOk" style="color:var(--green); font-size:14px; margin-bottom:10px; display:none; background:rgba(52,211,153,0.12); border:1px solid var(--green); border-radius:10px; padding:10px;"></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-secondary" id="forgotCancel" style="flex:0 0 auto; padding:10px 18px;">關閉</button>
+      <button class="btn btn-primary" id="forgotSubmit" style="flex:1;">📧 寄送</button>
+    </div>
+  </div>
+</div>
+
 <script src="assets/data.js"></script>
 <script src="assets/stars.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
 (async () => {
   try { await KPI.init(); } catch (e) { console.error('載入失敗', e); }
@@ -121,6 +141,66 @@
   document.getElementById('loginBtn').onclick = tryLogin;
   emailEl.addEventListener('keypress', e => { if (e.key === 'Enter') pwdEl.focus(); });
   pwdEl.addEventListener('keypress', e => { if (e.key === 'Enter') tryLogin(); });
+
+  // ===== 🔑 忘記密碼（EmailJS 寄信）=====
+  emailjs.init('p1K9QW09Lylxpkj42');
+  const SERVICE_ID = 'service_8dwl0h4';
+  const TEMPLATE_ID = 'template_8zazw9h';
+
+  const forgotModal = document.getElementById('forgotModal');
+  const forgotEmail = document.getElementById('forgotEmail');
+  const forgotErr = document.getElementById('forgotErr');
+  const forgotOk = document.getElementById('forgotOk');
+
+  document.getElementById('forgotLink').onclick = (e) => {
+    e.preventDefault();
+    forgotEmail.value = emailEl.value || '';
+    forgotErr.style.display = 'none';
+    forgotOk.style.display = 'none';
+    forgotModal.style.display = 'flex';
+    setTimeout(() => forgotEmail.focus(), 100);
+  };
+  document.getElementById('forgotCancel').onclick = () => { forgotModal.style.display = 'none'; };
+  forgotModal.addEventListener('click', e => { if (e.target === forgotModal) forgotModal.style.display = 'none'; });
+
+  async function submitForgot() {
+    forgotErr.style.display = 'none';
+    forgotOk.style.display = 'none';
+    const targetEmail = forgotEmail.value.trim().toLowerCase();
+    if (!targetEmail || !/^\S+@\S+\.\S+$/.test(targetEmail)) {
+      forgotErr.textContent = '請輸入有效的 Email'; forgotErr.style.display = 'block'; return;
+    }
+    const btn = document.getElementById('forgotSubmit');
+    btn.disabled = true; btn.textContent = '⏳ 寄送中...';
+    try {
+      // 找 user
+      const user = KPI.listUsers().find(u => (u.email || '').trim().toLowerCase() === targetEmail);
+      if (!user) {
+        // 為安全：不告知是否存在，一律顯示「已寄出」
+        forgotOk.textContent = '✅ 若這個 Email 有註冊，帳號資訊已寄出。請檢查信箱（含垃圾信件夾）。';
+        forgotOk.style.display = 'block';
+        return;
+      }
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+        to_name: user.name,
+        to_email: targetEmail,
+        email: targetEmail,
+        user_email: targetEmail,
+        name: user.name,
+        password: user.password,
+      });
+      forgotOk.textContent = '✅ 已寄出！請檢查信箱（含垃圾信件夾），1 分鐘內應該收到。';
+      forgotOk.style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      forgotErr.textContent = '寄送失敗：' + (err.text || err.message || '請稍後再試');
+      forgotErr.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = '📧 寄送';
+    }
+  }
+  document.getElementById('forgotSubmit').onclick = submitForgot;
+  forgotEmail.addEventListener('keypress', e => { if (e.key === 'Enter') submitForgot(); });
 })();
 </script>
 </body>
