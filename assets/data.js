@@ -152,13 +152,26 @@ const KPI = (() => {
 
   // ========= 工具 =========
   function today() { return new Date().toISOString().slice(0, 10); }
+  // 遊戲起始日：2026-06-11（週四）= 第一週第一天
+  // 之後每 7 天為一週循環
+  const GAME_EPOCH_STR = '2026-06-11';
   function weekId(d = new Date()) {
     const tmp = new Date(d);
-    const day = tmp.getDay();
-    // 週三起算（day=3 為週三）→ 週二為週末結算日
-    const offsetToWed = (day - 3 + 7) % 7;
-    tmp.setDate(tmp.getDate() - offsetToWed);
-    return tmp.toISOString().slice(0, 10);
+    const epoch = new Date(GAME_EPOCH_STR + 'T00:00:00');
+    // 6/11 之前的活動都歸到「第一週」（避免報錯）
+    if (tmp < epoch) return GAME_EPOCH_STR;
+    const days = Math.floor((tmp - epoch) / 86400000);
+    const weekStart = new Date(epoch);
+    weekStart.setDate(weekStart.getDate() + Math.floor(days / 7) * 7);
+    return weekStart.toISOString().slice(0, 10);
+  }
+  // 取得本週第幾週（1, 2, 3...）
+  function weekNumber(d = new Date()) {
+    const tmp = new Date(d);
+    const epoch = new Date(GAME_EPOCH_STR + 'T00:00:00');
+    if (tmp < epoch) return 1;
+    const days = Math.floor((tmp - epoch) / 86400000);
+    return Math.floor(days / 7) + 1;
   }
 
   // ========= 初始化：從 Supabase 抓所有資料到 cache =========
@@ -516,7 +529,7 @@ const KPI = (() => {
     // 固定資料
     MAIN_ACCOUNTS, PARTNER_ACCOUNTS, GROUPS,
     // 工具
-    today, weekId, emojiToSvgDataUrl,
+    today, weekId, weekNumber, emojiToSvgDataUrl,
     // 初始化
     init, refresh,
     // settings

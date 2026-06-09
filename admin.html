@@ -388,7 +388,8 @@
     const wk = KPI.weekId();
     const box = document.getElementById('weekTable');
     const users = KPI.listUsers();
-    let html = `<div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">本週週次：<code style="color:var(--gold);">${wk}</code>（週三起算到下週一，週二為結算日）</div>`;
+    const wn = KPI.weekNumber();
+    let html = `<div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">第 <code style="color:var(--gold);">${wn}</code> 週 · 起始：<code style="color:var(--gold);">${wk}</code>（6/11 為第一週第一天，每 7 天一週）</div>`;
     html += '<table><thead><tr><th>名字</th><th>組</th><th>本週狀態</th><th>本週金幣</th><th>本週蘋果</th><th>🟢連續</th><th>🔴連續</th></tr></thead><tbody>';
     users.filter(u => !u.eliminated).forEach(u => {
       const t = KPI.tierOf(u.id);
