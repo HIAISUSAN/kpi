@@ -223,6 +223,10 @@ const KPI = (() => {
 
   async function addUser(u) {
     if (cache.users.find(x => x.name === u.name)) throw new Error('這個暱稱已被使用');
+    const emailLc = (u.email || '').trim().toLowerCase();
+    if (emailLc && cache.users.find(x => (x.email || '').trim().toLowerCase() === emailLc)) {
+      throw new Error('這個 Email 已經註冊過了，請改用其他 Email，或回登入頁用「忘記密碼」找回');
+    }
     const dbUser = userToDb({
       ...u,
       coins: 0, apples: 0,
